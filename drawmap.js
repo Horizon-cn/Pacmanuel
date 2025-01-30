@@ -1,7 +1,7 @@
 var canvas;
 var ctx;
 var tileSize = 40;
-var FPS = 50;
+var FPS = 60;
 var width = 960;
 var height = 640;
 var pacman = { x: 1, y: 1 }; // Initial position of Pac-Man
@@ -10,18 +10,18 @@ pacmanImage.src = 'bluetiger.png';
 var refreshInterval = 1000; // Refresh interval in milliseconds
 var wallsToRemove = 10;
 var wallsToAdd = 10;
-var spaceDensity = 0.85;
+var wallDensity = 0.85;
 var ghostImage = new Image();
 ghostImage.src = 'manuel.png'; // Assuming you have a ghost image named 'ghost.png'
 var ghostMoveInterval = 200; // Interval for ghost movement in milliseconds
 
 var ghosts = [
     { x: 12, y: 1 },
+    { x: 1, y: 12 },
     { x: 13, y: 10 },
-    { x: 7, y: 14 },
-    { x: 7, y: 7 },
-    { x: 7, y: 7 },
-    { x: 7, y: 7 },
+    { x: 13, y: 10 },
+    { x: 13, y: 10 },
+    { x: 13, y: 10 }
 ];
 
 function generateRandomMap(rows, cols, probabilityOfZero) {
@@ -57,7 +57,7 @@ function generateRandomMap(rows, cols, probabilityOfZero) {
     return map;
 }
 
-var map = generateRandomMap(height / tileSize, width / tileSize, spaceDensity);
+var map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
 
 function init() {
     canvas = document.getElementById('canvas');
@@ -131,11 +131,20 @@ function movePacman(event) {
         pacman.y = newY;
     }
 
-    // Redraw the map, Pac-Man, and ghosts
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawMap();
-    drawPacman();
-    drawGhosts();
+    // Check for collision with ghosts
+    if (checkCollisionWithGhosts()) {
+        alert("Game Over! Pac-Man has been caught by a ghost.");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawMap();
+        drawGhosts();
+        resetGame();
+    } else {
+        // Redraw the map, Pac-Man, and ghosts
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawMap();
+        drawPacman();
+        drawGhosts();
+    }
 }
 
 function moveGhosts() {
@@ -157,11 +166,23 @@ function moveGhosts() {
         }
     });
 
-    // Redraw the map, Pac-Man, and ghosts
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawMap();
-    drawPacman();
-    drawGhosts();
+    // Check for collision with Pac-Man
+    if (checkCollisionWithGhosts()) {
+        alert("Game Over! Pac-Man has been caught by a ghost.");
+        resetGame();
+    } else {
+        // Redraw the map, Pac-Man, and ghosts
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawMap();
+        drawPacman();
+        drawGhosts();
+    }
+}
+
+function checkCollisionWithGhosts() {
+    return ghosts.some(function(ghost) {
+        return ghost.x === pacman.x && ghost.y === pacman.y;
+    });
 }
 
 function refreshMap() {
@@ -192,5 +213,25 @@ function refreshMap() {
     drawGhosts();
 }
 
-// Call the init function when the window loads
-window.onload = init;
+function resetGame() {
+    pacman = { x: 1, y: 1 }; // Reset Pac-Man's position
+    ghosts = [
+        { x: 12, y: 1 },
+        { x: 1, y: 12 },
+        { x: 13, y: 10 },
+        { x: 13, y: 10 },
+        { x: 13, y: 10 },
+        { x: 13, y: 10 }
+    ]; // Reset ghosts' positions
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawMap();
+    drawPacman();
+    drawGhosts();
+}
+
+// Start the game when the "Start" button is clicked
+document.getElementById('startButton').addEventListener('click', function() {
+    document.getElementById('startButton').style.display = 'none';
+    document.getElementById('canvas').style.display = 'block';
+    init();
+});
