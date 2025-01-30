@@ -12,6 +12,7 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
+            position: relative; /* 添加相对定位 */
         }
         #canvas {
             display: none;
@@ -33,6 +34,27 @@
             font-size: 2em;
             margin-bottom: 20px;
         }
+        #bean-counter, #round-counter {
+            display: none; /* 初始状态隐藏 */
+        }
+        #bean-counter {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 30px;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #000;
+        }
+        #round-counter {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 30px;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #000;
+        }
     </style>
 </head>
 <body>
@@ -44,13 +66,17 @@
     <div class="info">
         <p>使用方向键操控蓝虎</p>
         <p>吃掉所有豆子，躲避Manuel</p>
-        <p id="round-counter"></p> <!-- 添加回合计数显示 -->
     </div>
+
+    <div id="bean-counter">剩余豆子: 0</div> <!-- 添加剩余豆子计数显示 -->
+    <div id="round-counter">回合: 1</div> <!-- 添加回合计数显示 -->
 
     <script>
         document.getElementById('startButton').addEventListener('click', function() {
             document.getElementById('canvas').style.display = 'block';
             document.querySelector('.info').style.display = 'block';
+            document.getElementById('bean-counter').style.display = 'block';
+            document.getElementById('round-counter').style.display = 'block';
             this.style.display = 'none';
         });
     </script>

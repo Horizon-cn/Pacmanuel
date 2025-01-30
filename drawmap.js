@@ -14,7 +14,7 @@ var wallDensity = 0.85;
 var beannum = 10;
 var ghostImage = new Image();
 ghostImage.src = 'manuel.png'; // Assuming you have a ghost image named 'ghost.png'
-var ghostMoveInterval = 200; // Interval for ghost movement in milliseconds
+var ghostMoveInterval = 300; // Interval for ghost movement in milliseconds
 
 var round = 1; // 定义回合计数
 
@@ -74,6 +74,9 @@ function init() {
     drawGhosts();
     generateBeans();
     drawBeans();
+    round = 1;
+    
+    document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
 
     window.addEventListener('keydown', movePacman);
     setInterval(refreshMap, refreshInterval);
@@ -124,6 +127,7 @@ function generateBeans() {
             beans.push({ x: x, y: y });
         }
     }
+    updateBeanCounter();
 }
 
 // 绘制豆子
@@ -136,6 +140,9 @@ function drawBeans() {
     });
 }
 
+function updateBeanCounter() {
+    document.getElementById('bean-counter').innerText = `剩余豆子: ${beans.length}`;
+}
 
 function movePacman(event) {
     var newX = pacman.x;
@@ -173,10 +180,11 @@ function movePacman(event) {
         beans = beans.filter(function(bean) {
             return !(bean.x === pacman.x && bean.y === pacman.y);
         });
+        updateBeanCounter();
         
         if (beans.length === 0) {
             alert("Next Round");
-            ghostMoveInterval *= 0.9; // 提升10%
+            ghostMoveInterval *= 0.6; // 提升10%
             beannum += 5;
             map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
             generateBeans(beannum);
@@ -271,10 +279,6 @@ function refreshMap() {
 
     // Redraw the map, Pac-Man, and ghosts
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    round = 1; // 重置回合计数
-    document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
-
     drawMap();
     drawPacman();
     drawGhosts();
@@ -294,7 +298,10 @@ function resetGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
     beannum = 10;
-    ghostMoveInterval = 200;
+    ghostMoveInterval = 300;
+    round = 1;
+    document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
+
     drawMap();
     drawPacman();
     drawGhosts();
