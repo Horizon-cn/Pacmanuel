@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pac-Man Game</title>
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
         #canvas {
             display: none;
             border: 2px solid #000000;
@@ -15,11 +23,36 @@
             padding: 10px 20px;
             font-size: 20px;
         }
+        .info {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .title {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
+    <div class="title">Pacmanuel</div>
     <button id="startButton">Start</button>
     <canvas id="canvas" width="960" height="640"></canvas>
     <script src="drawmap.js"></script>
+
+    <div class="info">
+        <p>使用方向键操控蓝虎</p>
+        <p>吃掉所有豆子，躲避Manuel</p>
+        <p id="round-counter"></p> <!-- 添加回合计数显示 -->
+    </div>
+
+    <script>
+        document.getElementById('startButton').addEventListener('click', function() {
+            document.getElementById('canvas').style.display = 'block';
+            document.querySelector('.info').style.display = 'block';
+            this.style.display = 'none';
+        });
+    </script>
 </body>
 </html>
