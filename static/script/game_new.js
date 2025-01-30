@@ -1,58 +1,93 @@
+
 var canvas;
-canvas.width = 960;
-canvas.height = 640;    
-
 var ctx;
-
+var tileSize = 40;
 var FPS = 50;
-
-var player;
-
-var map = 
-[
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-]
-
-function drawmap(){
+var width = 960;
+var height = 640;
 
 
-}
-
-function setup_map(){
-    
-    for(var x=0; x<50; x++){
-        ranObjx = Math.floor(Math.random() * 13)+1;
-        ranObjy = Math.floor(Math.random() * 13)+1;
-        if(map[ranObjy][ranObjx] == 0){
-            map[ranObjy][ranObjx] = 1;
+function generateRandomMap(rows, cols, probabilityOfZero) {
+    var map = [];
+    for (var row = 0; row < rows; row++) {
+        var rowArray = [];
+        for (var col = 0; col < cols; col++) {
+            // Generate a random number and compare it with the probability
+            if (Math.random() < probabilityOfZero) {
+                rowArray.push(0);
+            } else {
+                rowArray.push(1);
+            }
         }
+        map.push(rowArray);
     }
 
+    // Set the outermost boundary to 1
+    for (var row = 0; row < rows; row++) {
+        map[row][0] = 1;
+        map[row][cols - 1] = 1;
+    }
+    for (var col = 0; col < cols; col++) {
+        map[0][col] = 1;
+        map[rows - 1][col] = 1;
+    }
+
+    return map;
 }
+
+function drawmap(){
+    for (var row = 0; row < map.length; row++) {
+        for (var col = 0; col < map[row].length; col++) {
+            var tile = map[row][col];
+
+            var x = col * tileSize;
+            var y = row * tileSize;
+
+            switch (tile) {
+                case 0:
+                    ctx.fillStyle = 'white'; // Empty space
+                    break;
+                case 1:
+                    ctx.fillStyle = 'gray'; // Wall
+                    break;
+            }
+
+            ctx.fillRect(x, y, tileSize, tileSize);
+        }
+    }
+}
+
+var map = generateRandomMap(height / tileSize, width / tileSize, 0.8);
+
+function init() {
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext('2d');
+
+    var map = generateRandomMap(height / tileSize, width / tileSize, 0.8);
+    
+    drawmap();
+    
+
+    //player = new Player();
+    setInterval(function(){
+
+        main();
+    }, 1000/FPS);
+    //player.draw();
+
+}
+
 
 function clearCanvas(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
-function init(){
-
-    canvas = document.getElementById('canvas');
-    ctx = canvas.getContext('2d');
-
-    player = new Player();
-
-    setInterval(function(){
-        drawmap();
-        player.draw();
-    }, 500/FPS);
-
+function main(){
+    clearCanvas();
+    map = generateRandomMap(height / tileSize, width / tileSize, 0.8);
+    drawmap();
+    
 }
+
+// Call the init function when the window loads
+window.onload = init;
