@@ -7,6 +7,10 @@ var height = 640;
 var pacman = { x: 1, y: 1 }; // Initial position of Pac-Man
 var pacmanImage = new Image();
 pacmanImage.src = 'favicon.png';
+var refreshInterval = 3000; // Refresh interval in milliseconds
+var wallsToRemove = 10;
+var wallsToAdd = 10;
+var wallDensity = 0.8;
 
 function generateRandomMap(rows, cols, probabilityOfZero) {
     var map = [];
@@ -41,7 +45,7 @@ function generateRandomMap(rows, cols, probabilityOfZero) {
     return map;
 }
 
-var map = generateRandomMap(height / tileSize, width / tileSize, 0.9);
+var map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
 
 function init() {
     canvas = document.getElementById('canvas');
@@ -50,6 +54,7 @@ function init() {
     drawPacman();
 
     window.addEventListener('keydown', movePacman);
+    setInterval(refreshMap, refreshInterval);
 }
 
 function drawMap() {
@@ -102,6 +107,33 @@ function movePacman(event) {
     if (newX >= 0 && newX < map[0].length && newY >= 0 && newY < map.length && map[newY][newX] === 0) {
         pacman.x = newX;
         pacman.y = newY;
+    }
+
+    // Redraw the map and Pac-Man
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawMap();
+    drawPacman();
+}
+
+function refreshMap() {
+    // Remove certain number of walls
+    for (var i = 0; i < wallsToRemove; i++) {
+        var row, col;
+        do {
+            row = Math.floor(Math.random() * (map.length - 2)) + 1;
+            col = Math.floor(Math.random() * (map[0].length - 2)) + 1;
+        } while (map[row][col] !== 1 || (row === pacman.y && col === pacman.x));
+        map[row][col] = 0;
+    }
+
+    // Add certain number of walls
+    for (var i = 0; i < wallsToAdd; i++) {
+        var row, col;
+        do {
+            row = Math.floor(Math.random() * (map.length - 2)) + 1;
+            col = Math.floor(Math.random() * (map[0].length - 2)) + 1;
+        } while (map[row][col] !== 0 || (row === pacman.y && col === pacman.x));
+        map[row][col] = 1;
     }
 
     // Redraw the map and Pac-Man
