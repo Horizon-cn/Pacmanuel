@@ -1,7 +1,7 @@
 var level;
 var buff;
 var speed = 4, life = 3;
-var buffs = [{name: "Speed +2", effect: function(){speed += 2} },{name: "Life +1", effect: function(){life += 1}}]  //need update
+var buffs = [{name: "Speed +2", effect: function(){speed += 2}},{name: "Life +1", effect: function(){life += 1}}, {name: "award +1", effect: function(){award += 2}}]  //need update
 /*
 function generateRandomBuffs(){
     var randomBuff = buffs[Math.floor(Math.random()*buffs.length)];
@@ -10,35 +10,24 @@ function generateRandomBuffs(){
 */
 function chooseBuff(){
     return new Promise((resolve) => {
-        console.log("Please choose one buff:");
-        console.log("1: " + buffs[0].name);
-        console.log("2: " + buffs[1].name);
+        var outputDiv = document.getElementById('output');
+        outputDiv.innerHTML = "Please choose one buff:<br>";
+        document.getElementById('buff1').addEventListener('click', function() {
+            resolve(0);
+        });
 
-
-        function handleKeydown(button) {
-            if (button.code === 'Digit1') {
-                check = true;
-                document.removeEventListener('keydown', handleKeydown);
-                resolve(1);
-            } else if (button.code === 'Digit2') {
-                check = true;
-                document.removeEventListener('keydown', handleKeydown);
-                resolve(2);
-            } else {
-                console.log("Invalid input. Please enter 1 or 2.");
-            }
-        }
-
-    document.addEventListener('keydown', handleKeydown);
+        document.getElementById('buff2').addEventListener('click', function() {
+            resolve(1);
+        });
     });
 }
 
 
-async function givebuff(){
+async function givebuff() {
     var buffIndex = await chooseBuff();
-    buffIndex--;
     buffs[buffIndex].effect();
-    console.log("You have chosen: " + buffs[buffIndex].name);
-    console.log(speed, life);
+    var outputDiv = document.getElementById('output');
+    outputDiv.innerHTML += "You have chosen: " + buffs[buffIndex].name + "<br>";
+    outputDiv.innerHTML += "Speed: " + speed + ", Life: " + life + "<br>";
 }
 

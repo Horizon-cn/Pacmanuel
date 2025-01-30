@@ -1,15 +1,22 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Test Level Buff</title>
+    <link rel="stylesheet" href="./static/style/hhy.css">
     <script src="./static/script/levelbuff.js"></script>
 </head>
 <body>
     <h1>Test Level Buff</h1>
-    <p>Press 1 or 2 to choose one buff。</p>
+    <div id="output"></div>
+    <button id="buff1">Choose Buff 1</button>
+    <button id="buff2">Choose Buff 2</button>
     <script>
-        // 调用 givebuff 函数来测试
+        // Set button text to buff names
+        document.getElementById('buff1').innerText = buffs[0].name;
+        document.getElementById('buff2').innerText = buffs[1].name;
+        //document.getElementById('buff3').innerText = buffs[2].name;
+        // Call givebuff function to test
         givebuff();
     </script>
 </body>
