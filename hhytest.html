@@ -3,21 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>Test Level Buff</title>
-    <link rel="stylesheet" href="./static/style/hhy.css">
+    <link rel="stylesheet" type="text/css" href="./static/style/hhy.css">
     <script src="./static/script/levelbuff.js"></script>
 </head>
 <body>
-    <h1>Test Level Buff</h1>
-    <div id="output"></div>
-    <button id="buff1">Choose Buff 1</button>
-    <button id="buff2">Choose Buff 2</button>
+    <div class="levelwin" id="levelwin">
+        <img src="./static/style/PNG/LEVEL WIN.png" alt="Level Win Image" class="levelwin-image">
+        <button id="nextlevel"> </button>
+        <button id="endgame"> </button>
+    </div>
+
+    <div class="buff" id="buff" style="display: none;">
+        <img src="./static/style/PNG/BUFF.png" alt="BUFF Image" class="buff-image">
+       <button id="buff1"> </button>
+        <button id="buff2"> </button>
+    </div>
+
     <script>
-        // Set button text to buff names
-        document.getElementById('buff1').innerText = buffs[0].name;
-        document.getElementById('buff2').innerText = buffs[1].name;
-        //document.getElementById('buff3').innerText = buffs[2].name;
+        // Add event listener to the next level button
+        document.getElementById('nextlevel').addEventListener('click', function() {
+        // Clear the canvas
+        document.getElementById('levelwin').style.display = 'none';
+        document.getElementById('buff').style.display = 'block';
+
         // Call givebuff function to test
         givebuff();
+
+    });
+
     </script>
+
+    
 </body>
 </html>

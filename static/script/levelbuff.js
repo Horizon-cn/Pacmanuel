@@ -10,8 +10,6 @@ function generateRandomBuffs(){
 */
 function chooseBuff(){
     return new Promise((resolve) => {
-        var outputDiv = document.getElementById('output');
-        outputDiv.innerHTML = "Please choose one buff:<br>";
         document.getElementById('buff1').addEventListener('click', function() {
             resolve(0);
         });
@@ -27,7 +25,6 @@ async function givebuff() {
     var buffIndex = await chooseBuff();
     buffs[buffIndex].effect();
     var outputDiv = document.getElementById('output');
-    outputDiv.innerHTML += "You have chosen: " + buffs[buffIndex].name + "<br>";
-    outputDiv.innerHTML += "Speed: " + speed + ", Life: " + life + "<br>";
+    console.log("Speed: " + speed + ", Life: " + life + "<br>");
 }
 
