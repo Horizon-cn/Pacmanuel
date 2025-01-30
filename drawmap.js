@@ -120,6 +120,7 @@ function drawGhosts() {
 
 // 随机生成25个豆子的位置
 function generateBeans() {
+    beans = [];
     while (beans.length < beannum) {
         var x = Math.floor(Math.random() * (map[0].length - 2)) + 1;
         var y = Math.floor(Math.random() * (map.length - 2)) + 1;
