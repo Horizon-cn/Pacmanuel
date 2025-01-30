@@ -6,11 +6,23 @@ var width = 960;
 var height = 640;
 var pacman = { x: 1, y: 1 }; // Initial position of Pac-Man
 var pacmanImage = new Image();
-pacmanImage.src = 'favicon.png';
-var refreshInterval = 3000; // Refresh interval in milliseconds
+pacmanImage.src = 'bluetiger.png';
+var refreshInterval = 1000; // Refresh interval in milliseconds
 var wallsToRemove = 10;
 var wallsToAdd = 10;
-var wallDensity = 0.8;
+var spaceDensity = 0.85;
+var ghostImage = new Image();
+ghostImage.src = 'manuel.png'; // Assuming you have a ghost image named 'ghost.png'
+var ghostMoveInterval = 200; // Interval for ghost movement in milliseconds
+
+var ghosts = [
+    { x: 12, y: 1 },
+    { x: 13, y: 10 },
+    { x: 7, y: 14 },
+    { x: 7, y: 7 },
+    { x: 7, y: 7 },
+    { x: 7, y: 7 },
+];
 
 function generateRandomMap(rows, cols, probabilityOfZero) {
     var map = [];
@@ -45,16 +57,18 @@ function generateRandomMap(rows, cols, probabilityOfZero) {
     return map;
 }
 
-var map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
+var map = generateRandomMap(height / tileSize, width / tileSize, spaceDensity);
 
 function init() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
     drawMap();
     drawPacman();
+    drawGhosts();
 
     window.addEventListener('keydown', movePacman);
     setInterval(refreshMap, refreshInterval);
+    setInterval(moveGhosts, ghostMoveInterval);
 }
 
 function drawMap() {
@@ -84,6 +98,14 @@ function drawPacman() {
     ctx.drawImage(pacmanImage, x, y, tileSize, tileSize);
 }
 
+function drawGhosts() {
+    ghosts.forEach(function(ghost) {
+        var x = ghost.x * tileSize;
+        var y = ghost.y * tileSize;
+        ctx.drawImage(ghostImage, x, y, tileSize, tileSize);
+    });
+}
+
 function movePacman(event) {
     var newX = pacman.x;
     var newY = pacman.y;
@@ -109,10 +131,37 @@ function movePacman(event) {
         pacman.y = newY;
     }
 
-    // Redraw the map and Pac-Man
+    // Redraw the map, Pac-Man, and ghosts
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawMap();
     drawPacman();
+    drawGhosts();
+}
+
+function moveGhosts() {
+    ghosts.forEach(function(ghost) {
+        var directions = [
+            { x: 0, y: -1 }, // Up
+            { x: 0, y: 1 },  // Down
+            { x: -1, y: 0 }, // Left
+            { x: 1, y: 0 }   // Right
+        ];
+        var direction = directions[Math.floor(Math.random() * directions.length)];
+        var newX = ghost.x + direction.x;
+        var newY = ghost.y + direction.y;
+
+        // Check if the new position is within bounds and not a wall
+        if (newX >= 1 && newX < map[0].length - 1 && newY >= 1 && newY < map.length - 1 && map[newY][newX] === 0) {
+            ghost.x = newX;
+            ghost.y = newY;
+        }
+    });
+
+    // Redraw the map, Pac-Man, and ghosts
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawMap();
+    drawPacman();
+    drawGhosts();
 }
 
 function refreshMap() {
@@ -136,10 +185,11 @@ function refreshMap() {
         map[row][col] = 1;
     }
 
-    // Redraw the map and Pac-Man
+    // Redraw the map, Pac-Man, and ghosts
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawMap();
     drawPacman();
+    drawGhosts();
 }
 
 // Call the init function when the window loads
