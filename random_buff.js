@@ -1,78 +1,61 @@
+// Constants
+var ghostMoveInterval = 200; // Interval for ghost movement in milliseconds
+var whether_award = 0;
+var whether_attack = 0;
 
-//图片素材和画布
-var award_widthF=50;
-var award_heightF=50;
+// function checkCollision(x, y, map) {
+//     if (map[y][x] === 0) {
+//         return true;
+//     }
+//     return false;
+// }
 
-//角色属性
-var tiger_speed=5;
-var manuel_speed=5;
 
-//状态
-var whether_award=0;
-var whether_attack=0;
-
-var award=function(x,y){
-
-    this.x=Math.floor (Math.random()*15);
-    this.y=Math.floor (Math.random()*15);
-
-    this.checkCollision = function(x,y){
-        var collision = false;
-
-        if(original_map[y][x]==0){
-          colision = true;
-        }
-        return collision;
-    }
-
-    this.produceAward=function ()
-    {
-        if (this.checkCollision(this.x,this.y))
-        {
-            this.plot = function(){
-                ctx.drawImage(original_floor,1*50,0,50,50,award_widthF*this.x,award_heightF*this.y,award_widthF,award_heightF);
-            }
-
-            original_map[this.x][this.y]=5;
+function generateAwards() {
+    awards = [];
+    while (awards.length < 5) {
+        var x = Math.floor(Math.random() * (map[0].length - 2)) + 1;
+        var y = Math.floor(Math.random() * (map.length - 2)) + 1;
+        if (map[y][x] === 0 && !awards.some(award => award.x === x && award.y === y)) {
+            awards.push({ x: x, y: y });
         }
     }
-
-    this.awardGained=function()
-    {
-        var awardKind=4;
-        if (whether_award)
-        {
-            awardKind=Math.floor (Math.random()*3);
-            switch(awardKind){
-                case 0:
-                    ctx.drawImage(Award0,0*50,0,50,50,award_widthF*this.x,award_heightF*this.y,award_widthF,award_heightF);
-                    tiger_speed=tiger_speed+3;
-                case 1:
-                    ctx.drawImage(Award1,0*50,0,50,50,award_widthF*this.x,award_heightF*this.y,award_widthF,award_heightF);
-                    manuel_speed=manuel_speed-2;
-                case 2:
-                    ctx.drawImage(Award2,0*50,0,50,50,award_widthF*this.x,award_heightF*this.y,award_widthF,award_heightF);
-                    whether_attack=1;
-            }
-        }
-    }
-
 }
 
-var tiger=function(x,y){
-    this.checkCollision = function(x,y){
-        var colision = false;
-    
-        if(original_map[y][x]==0){
-          colision = true;
+// award gaining
+function awardGained(ctx, award_widthF, award_heightF, x, y, Award0, Award1, Award2) {
+    if (whether_award) {
+        var awardKind = Math.floor(Math.random() * 3);
+        switch (awardKind) {
+            case 0:
+                ctx.drawImage(Award0, 0 * 50, 0, 50, 50, award_widthF * x, award_heightF * y, award_widthF, award_heightF);
+                // ghostMoveInterval = 0;
+                // setTimeout(() => {
+                //     ghostMoveInterval = 100; 
+                // }, 5000);
+                HP_harm=5;
+                break;
+            case 1:
+                ctx.drawImage(Award1, 0 * 50, 0, 50, 50, award_widthF * x, award_heightF * y, award_widthF, award_heightF);
+                ghostMoveInterval = 100;
+                setTimeout(() => {
+                    ghostMoveInterval = 200; 
+                }, 5000);
+                break;
+            case 2:
+                ctx.drawImage(Award2, 0 * 50, 0, 50, 50, award_widthF * x, award_heightF * y, award_widthF, award_heightF);
+                whether_attack = 1;
+                setTimeout(() => {
+                    whether_attack = 0; 
+                }, 5000);
+                break;
         }
-        else if (original_map[y][x]==5){
-            colision=false;
-            whether_award=1;
-        }
-    
-        return(colision);
     }
-    
 }
 
+// Function to check collision for tiger
+function checkTigerCollision(x, y, map) {
+    if (awards[y][x] === 1) {
+        whether_award = 1;
+    }
+}
