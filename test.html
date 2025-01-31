@@ -34,7 +34,7 @@
             font-size: 2em;
             margin-bottom: 20px;
         }
-        #hp-counter, #bean-counter, #round-counter {
+        #hp-counter, #bean-counter, #round-counter, #gpa-counter {
             display: none; /* 初始状态隐藏 */
         }
         #hp-counter {
@@ -64,6 +64,15 @@
             padding: 10px;
             border: 1px solid #000;
         }
+        #gpa-counter {
+            position: absolute;
+            top: 150px;
+            right: 20px;
+            font-size: 30px;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #000;
+        }
     </style>
 </head>
 <body>
@@ -80,6 +89,7 @@
     <div id="hp-counter">HP: 100</div> <!-- 添加回合计数显示 -->
     <div id="bean-counter">剩余豆子: 0</div> <!-- 添加剩余豆子计数显示 -->
     <div id="round-counter">回合: 1</div> <!-- 添加回合计数显示 -->
+    <div id="gpa-counter">GPA: 1.0 / 4.0</div> <!-- 添加得分显示 -->
 
     <script>
         document.getElementById('startButton').addEventListener('click', function() {
@@ -88,6 +98,7 @@
             document.getElementById('hp-counter').style.display = 'block';
             document.getElementById('bean-counter').style.display = 'block';
             document.getElementById('round-counter').style.display = 'block';
+            document.getElementById('gpa-counter').style.display = 'block';
             this.style.display = 'none';
         });
     </script>

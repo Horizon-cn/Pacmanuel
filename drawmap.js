@@ -19,6 +19,7 @@ ghostImage.src = 'manuel.png'; // Assuming you have a ghost image named 'ghost.p
 var ghostMoveInterval = 300; // Interval for ghost movement in milliseconds
 
 var round = 1; // 定义回合计数
+var gpa = 1.0; // 定义初始得分
 
 var ghosts = [
     { x: 12, y: 1 },
@@ -131,6 +132,7 @@ function generateBeans() {
         }
     }
     updateBeanCounter();
+    updateGpaCounter();
 }
 
 // 绘制豆子
@@ -149,6 +151,24 @@ function updateBeanCounter() {
 
 function updateHpCounter() {
     document.getElementById('hp-counter').innerText = `HP: ${hp}`;
+}
+
+function updateGpaCounter() {
+    var eatenBeans = beannum - beans.length;
+    gpa = 1.0 + (3.0 * eatenBeans / beannum); // 线性得分计算
+
+    if (gpa >= 4.0) gpa = 4.0;
+    else if (gpa >= 3.7) gpa = 3.7;
+    else if (gpa >= 3.3) gpa = 3.3;
+    else if (gpa >= 3.0) gpa = 3.0;
+    else if (gpa >= 2.7) gpa = 2.7;
+    else if (gpa >= 2.3) gpa = 2.3;
+    else if (gpa >= 2.0) gpa = 2.0;
+    else if (gpa >= 1.7) gpa = 1.7;
+    else if (gpa >= 1.3) gpa = 1.3;
+    else gpa = 1.0;
+
+    document.getElementById('gpa-counter').innerText = `GPA: ${gpa.toFixed(1)} / 4.0`;
 }
 
 function movePacman(event) {
@@ -182,7 +202,7 @@ function movePacman(event) {
     
     // Check for collision with the ghosts
     if (checkCollisionWithGhosts()) {
-        hp -= 10;
+        hp -= 25;
         updateHpCounter();
         if (hp <= 0) {
             // Delay the alert to ensure the ghost image overlaps with Pac-Man
@@ -196,6 +216,7 @@ function movePacman(event) {
             return !(bean.x === pacman.x && bean.y === pacman.y);
         });
         updateBeanCounter();
+        updateGpaCounter();
         
         if (beans.length === 0) {
             alert("Next Round");
@@ -243,7 +264,7 @@ function moveGhosts() {
 
     // Check for collision with Pac-Man
     if (checkCollisionWithGhosts()) {
-        hp -= 10;
+        hp -= 25;
         updateHpCounter();
         if (hp <= 0) {
             // Delay the alert to ensure the ghost image overlaps with Pac-Man
@@ -330,6 +351,7 @@ function resetGame() {
     generateBeans(beannum);
     drawBeans();
     updateHpCounter();
+    updateGpaCounter();
 }
 
 // Start the game when the "Start" button is clicked
