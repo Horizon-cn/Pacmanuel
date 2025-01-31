@@ -232,7 +232,7 @@ function movePacman(event) {
             setTimeout(function() {
                 alert("Next Level!");
                 ghostMoveInterval *= 0.8; // 提升10%
-                ghostSpeed *= 1.5; // 提升20%
+                ghostSpeed *= 1.2; // 提升20%
                 beannum += 5;
                 map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
                 generateBeans(beannum);
@@ -281,8 +281,8 @@ function moveGhosts() {
                 for (var i = 0; i < ghosts.length; i++) {
                     if (i === index) continue;
                     var otherGhost = ghosts[i];
-                    if (Math.abs(ghost.pixelX - otherGhost.pixelX) < tileSize &&
-                Math.abs(ghost.pixelY - otherGhost.pixelY) < tileSize)
+                    if (Math.abs(newX * tileSize- otherGhost.pixelX) < tileSize &&
+                Math.abs(newY * tileSize - otherGhost.pixelY) < tileSize)
                         ghostcollision = true;
                 }
 
@@ -295,6 +295,9 @@ function moveGhosts() {
                 var direction = validDirections[Math.floor(Math.random() * validDirections.length)];
                 ghost.targetX = ghost.x + direction.x;
                 ghost.targetY = ghost.y + direction.y;
+            }else{
+                ghost.targetX = ghost.x;
+                ghost.targetY = ghost.y;
             }
         }
 
@@ -304,20 +307,6 @@ function moveGhosts() {
         
         if (dx !== 0) ghost.pixelX += Math.sign(dx) * ghostSpeed;
         if (dy !== 0) ghost.pixelY += Math.sign(dy) * ghostSpeed;
-    });
-
-    ghosts.forEach(function(ghost, index) {
-        for (var i = index + 1; i < ghosts.length; i++) {
-            var otherGhost = ghosts[i];
-            if (Math.abs(ghost.pixelX - otherGhost.pixelX) < tileSize &&
-                Math.abs(ghost.pixelY - otherGhost.pixelY) < tileSize) {
-                // Reverse direction
-                ghost.targetX = ghost.x - (ghost.targetX - ghost.x);
-                ghost.targetY = ghost.y - (ghost.targetY - ghost.y);
-                otherGhost.targetX = otherGhost.x - (otherGhost.targetX - otherGhost.x);
-                otherGhost.targetY = otherGhost.y - (otherGhost.targetY - otherGhost.y);
-            }
-        }
     });
 
     // Redraw everything
@@ -456,7 +445,7 @@ function resetGame() {
     map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
     beannum = 10;
     hp = 100;
-    ghostMoveInterval = 50;
+    ghostMoveInterval = 10;
     ghostSpeed = 2;
     round = 1;
     lastCollisionCheck = 0;
