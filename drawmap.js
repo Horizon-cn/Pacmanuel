@@ -16,7 +16,7 @@ var wallDensity = 0.85;
 var beannum = 10;
 var ghostImage = new Image();
 ghostImage.src = 'manuel.png'; // The ghost image named 'ghost.png'
-var ghostMoveInterval = 50; // Interval for ghost movement in milliseconds
+var ghostMoveInterval = 10; // Interval for ghost movement in milliseconds
 
 var round = 1; // 定义回合计数
 var gpa = 1.0; // 定义初始得分
@@ -207,7 +207,9 @@ function movePacman(event) {
     // Check for collision with the ghosts using time interval
     var currentTime = Date.now();
     if (currentTime - lastCollisionCheck >= collisionCheckInterval) {
+        lastCollisionCheck = currentTime;
         if (checkCollisionWithGhosts()) {
+            lastCollisionCheck += 500;
             hp -= 25;
             updateHpCounter();
             if (hp <= 0) {
@@ -218,7 +220,6 @@ function movePacman(event) {
                 }, 100);
             }
         }
-        lastCollisionCheck = currentTime;
     } else {
         beans = beans.filter(function(bean) {
             return !(bean.x === pacman.x && bean.y === pacman.y);
@@ -230,7 +231,7 @@ function movePacman(event) {
         if (beans.length === 0) {
             setTimeout(function() {
                 alert("Next Level!");
-                ghostMoveInterval *= 0.6; // 提升10%
+                ghostMoveInterval *= 0.8; // 提升10%
                 ghostSpeed *= 1.5; // 提升20%
                 beannum += 5;
                 map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
@@ -304,7 +305,9 @@ function moveGhosts() {
 
     // Modified collision check using time interval
     if (shouldCheckCollision) {
+        lastCollisionCheck = currentTime;
         if (checkCollisionWithGhosts()) {
+            lastCollisionCheck += 500;
             hp -= 25;
             updateHpCounter();
             if (hp <= 0) {
@@ -313,16 +316,31 @@ function moveGhosts() {
                     resetGame();
                 }, 100);
             }
-        }
-        lastCollisionCheck = currentTime;
+        }      
     }
 }
 
+// function checkCollisionWithGhosts() {
+//     return ghosts.some(function(ghost) {
+//         var dx = Math.abs(ghost.pixelX - (pacman.x * tileSize));
+//         var dy = Math.abs(ghost.pixelY - (pacman.y * tileSize));
+//         return dx < tileSize/2 && dy < tileSize/2;
+//     });
+// }
+
 function checkCollisionWithGhosts() {
     return ghosts.some(function(ghost) {
-        var dx = Math.abs(ghost.pixelX - (pacman.x * tileSize));
-        var dy = Math.abs(ghost.pixelY - (pacman.y * tileSize));
-        return dx < tileSize/2 && dy < tileSize/2;
+        var pacmanLeft = pacman.x * tileSize;
+        var pacmanRight = pacmanLeft + tileSize;
+        var pacmanTop = pacman.y * tileSize;
+        var pacmanBottom = pacmanTop + tileSize;
+
+        var ghostLeft = ghost.pixelX;
+        var ghostRight = ghostLeft + ghostSize;
+        var ghostTop = ghost.pixelY;
+        var ghostBottom = ghostTop + ghostSize;
+
+        return !(pacmanRight <= ghostLeft || pacmanLeft >= ghostRight || pacmanBottom <= ghostTop || pacmanTop >= ghostBottom);
     });
 }
 
