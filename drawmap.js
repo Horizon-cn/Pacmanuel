@@ -42,7 +42,7 @@ var ghosts = [
 var beans = [];
 let gamePaused = false;
 
-var collisionCheckInterval = 200; // Check collision every 1000ms (1 second)
+var collisionCheckInterval = 150; // Check collision every 1000ms (1 second)
 var lastCollisionCheck = 0; // Track when we last checked for collision
 
 function generateRandomMap(rows, cols, probabilityOfZero) {
@@ -182,6 +182,8 @@ function onBuffSelected() {
     document.getElementById('canvas').style.display='block';
     document.getElementById('bean-counter').style.display='block';
     document.getElementById('round-counter').style.display='block';
+    document.getElementById('hp-counter').style.display='block';
+    document.getElementById('gpa-counter').style.display='block';
     document.querySelector('.info').style.display='block';
     // 刷新关卡逻辑
     ghostMoveInterval *= 0.8; // 提升10%
@@ -297,6 +299,8 @@ function movePacman(event) {
             document.getElementById('canvas').style.display = "none";
             document.getElementById('bean-counter').style.display = "none";
             document.getElementById('round-counter').style.display = "none";
+            document.getElementById('gpa-counter').style.display='none';
+            document.getElementById('hp-counter').style.display='none';
             document.querySelector('.info').style.display = "none";
 
             document.querySelector('.levelwin').style.display = 'block'; // 显示 levelwin 界面
