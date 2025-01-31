@@ -4,6 +4,8 @@ var tileSize = 40;
 var FPS = 60;
 var width = 960;
 var height = 640;
+
+var hp = 100;
 var pacman = { x: 1, y: 1 }; // Initial position of Pac-Man
 var pacmanImage = new Image();
 pacmanImage.src = 'bluetiger.png';
@@ -145,6 +147,10 @@ function updateBeanCounter() {
     document.getElementById('bean-counter').innerText = `剩余豆子: ${beans.length}`;
 }
 
+function updateHpCounter() {
+    document.getElementById('hp-counter').innerText = `HP: ${hp}`;
+}
+
 function movePacman(event) {
     var newX = pacman.x;
     var newY = pacman.y;
@@ -169,14 +175,22 @@ function movePacman(event) {
         pacman.x = newX;
         pacman.y = newY;
     }
-
-    // Check for collision with ghosts
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawMap();
+    drawGhosts();
+    
+    // Check for collision with the ghosts
     if (checkCollisionWithGhosts()) {
-        alert("Game Over! Pac-Man has been caught by a ghost.");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawMap();
-        drawGhosts();
-        resetGame();
+        hp -= 10;
+        updateHpCounter();
+        if (hp <= 0) {
+            // Delay the alert to ensure the ghost image overlaps with Pac-Man
+            setTimeout(function() {
+                alert("Game Over! Pac-Man has been caught by Professor Manuel.");
+                resetGame();
+            }, 100);
+        }
     } else {
         beans = beans.filter(function(bean) {
             return !(bean.x === pacman.x && bean.y === pacman.y);
@@ -220,18 +234,24 @@ function moveGhosts() {
             ghost.y = newY;
         }
     });
+    // Redraw the map, Pac-Man, and ghosts
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawMap();
+    drawPacman();
+    drawGhosts();
+    drawBeans();
 
     // Check for collision with Pac-Man
     if (checkCollisionWithGhosts()) {
-        alert("Game Over! Pac-Man has been caught by a ghost.");
-        resetGame();
-    } else {
-        // Redraw the map, Pac-Man, and ghosts
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawMap();
-        drawPacman();
-        drawGhosts();
-        drawBeans();
+        hp -= 10;
+        updateHpCounter();
+        if (hp <= 0) {
+            // Delay the alert to ensure the ghost image overlaps with Pac-Man
+            setTimeout(function() {
+                alert("Game Over! Pac-Man has been caught by Professor Manuel.");
+                resetGame();
+            }, 100);
+        }
     }
 }
 
@@ -299,6 +319,7 @@ function resetGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
     beannum = 10;
+    hp = 100;
     ghostMoveInterval = 300;
     round = 1;
     document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
@@ -308,6 +329,7 @@ function resetGame() {
     drawGhosts();
     generateBeans(beannum);
     drawBeans();
+    updateHpCounter();
 }
 
 // Start the game when the "Start" button is clicked
