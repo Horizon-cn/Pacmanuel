@@ -13,7 +13,7 @@ var refreshInterval = 1000; // Refresh interval in milliseconds
 var wallsToRemove = 10;
 var wallsToAdd = 11;
 var wallDensity = 0.85;
-var beannum = 10; //only for test
+var beannum = 10;
 var ghostImage = new Image();
 ghostImage.src = 'manuel.png'; // The ghost image named 'ghost.png'
 var ghostMoveInterval = 10; // Interval for ghost movement in milliseconds
@@ -190,21 +190,20 @@ function onBuffSelected() {
     map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
     generateBeans(beannum);
     round++; // 增加回合计数
+    console.log("round: ", round);
     const roundCounterElement = document.getElementById('round-counter');
     if (roundCounterElement) {
         roundCounterElement.innerText = `回合: ${round}`; // 更新显示的回合计数
-        console.log("round: ", round);
     }
     // 恢复游戏
     gamePaused = false;
 
-    // 重新绘制地图、Pac-Man 和幽灵
-    // console.log("refresh map",mapElements);
-    // ctx = canvas.getContext('2d');
-    // drawMap();
-    // drawPacman();
-    // drawGhosts();
-    // drawBeans();
+    //重新绘制地图、Pac-Man 和幽灵
+    ctx = canvas.getContext('2d');
+    drawMap();
+    drawPacman();
+    drawGhosts();
+    drawBeans();
 }
 
 function updateHpCounter() {
@@ -301,15 +300,10 @@ function movePacman(event) {
             document.querySelector('.info').style.display = "none";
 
             document.querySelector('.levelwin').style.display = 'block'; // 显示 levelwin 界面
+            document.getElementById('nextlevel').removeEventListener('click', nextLevelHandler);
                     // Add event listener to the next level button
-            document.getElementById('nextlevel').addEventListener('click', function() {
-                // Clear the canvas
-                document.getElementById('levelwin').style.display = 'none';
-                document.getElementById('buff').style.display = 'block';
 
-                // Call givebuff function to test
-                givebuff();
-            });
+            document.getElementById('nextlevel').addEventListener('click', nextLevelHandler);
         }
 
         // Redraw the map, Pac-Man, and ghosts
@@ -318,6 +312,15 @@ function movePacman(event) {
         drawGhosts();
         drawBeans();
     }
+}
+
+function nextLevelHandler() {
+    // Clear the canvas
+    document.getElementById('levelwin').style.display = 'none';
+    document.getElementById('buff').style.display = 'block';
+
+    // Call givebuff function to test
+    givebuff();
 }
 
 function moveGhosts() {
@@ -540,15 +543,16 @@ document.getElementById('startButton').addEventListener('click', function() {
 
 function chooseBuff(){
     return new Promise((resolve) => {
-        document.getElementById('buff1').addEventListener('click', function() {       
-            console.log("select buffing0");    
-            resolve(0);
-        });
-
-        document.getElementById('buff2').addEventListener('click', function() {
-            console.log("select buffing1");    
-            resolve(1);
-        });
+        function buff1Handler() {
+            resolve(0); // 假设 buff1 的索引是 0
+        }
+        function buff2Handler() {
+            resolve(1); // 假设 buff2 的索引是 1
+        }
+        document.getElementById('buff1').removeEventListener('click', buff1Handler);
+        document.getElementById('buff1').addEventListener('click', buff1Handler);
+        document.getElementById('buff2').removeEventListener('click', buff2Handler);
+        document.getElementById('buff2').addEventListener('click', buff2Handler);
     });
 }
 
