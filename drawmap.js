@@ -181,15 +181,23 @@ function movePacman(event) {
 
     switch (event.key) {
         case 'ArrowUp':
+        case 'w':
+        case 'W':
             newY--;
             break;
         case 'ArrowDown':
+        case 's':
+        case 'S':
             newY++;
             break;
         case 'ArrowLeft':
+        case 'a':
+        case 'A':
             newX--;
             break;
         case 'ArrowRight':
+        case 'd':
+        case 'D':
             newX++;
             break;
     }
