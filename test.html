@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./static/style/hhy.css">
     <title>Pac-Man Game</title>
     <style>
         body {
@@ -58,27 +59,41 @@
     </style>
 </head>
 <body>
+    
     <div class="title">Pacmanuel</div>
     <button id="startButton">Start</button>
     <canvas id="canvas" width="960" height="640"></canvas>
-    <script src="drawmap.js"></script>
-
-    <div class="info">
-        <p>使用方向键操控蓝虎</p>
-        <p>吃掉所有豆子，躲避Manuel</p>
-    </div>
-
     <div id="bean-counter">剩余豆子: 0</div> <!-- 添加剩余豆子计数显示 -->
     <div id="round-counter">回合: 1</div> <!-- 添加回合计数显示 -->
+    <div class="info">
+            <p>使用方向键操控蓝虎</p>
+            <p>吃掉所有豆子，躲避Manuel</p>
+    </div>
+    </div>
+
+    <script src="drawmap.js"></script>
 
     <script>
         document.getElementById('startButton').addEventListener('click', function() {
-            document.getElementById('canvas').style.display = 'block';
-            document.querySelector('.info').style.display = 'block';
-            document.getElementById('bean-counter').style.display = 'block';
-            document.getElementById('round-counter').style.display = 'block';
-            this.style.display = 'none';
+            document.getElementById('canvas').style.display = "block";
+            document.getElementById('bean-counter').style.display = "block";
+            document.getElementById('round-counter').style.display = "block";
+            document.querySelector('.info').style.display = "block";
         });
     </script>
+
+    <!-- 合并 hhytest.html 的内容 -->
+    <div class="levelwin" id="levelwin" style="display: none;">
+        <img src="./static/style/PNG/LEVEL WIN.png" alt="Level Win Image" class="levelwin-image">
+        <button id="nextlevel"> </button>
+        <button id="endgame"> </button>
+    </div>
+
+    <div class="buff" id="buff" style="display: none;">
+        <img src="./static/style/PNG/BUFF.png" alt="BUFF Image" class="buff-image">
+        <button id="buff1"> </button>
+        <button id="buff2"> </button>
+    </div>
+
 </body>
 </html>

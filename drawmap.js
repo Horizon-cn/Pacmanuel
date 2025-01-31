@@ -11,10 +11,16 @@ var refreshInterval = 1000; // Refresh interval in milliseconds
 var wallsToRemove = 10;
 var wallsToAdd = 11;
 var wallDensity = 0.85;
-var beannum = 10;
+var beannum = 10; //only for test
 var ghostImage = new Image();
 ghostImage.src = 'manuel.png'; // Assuming you have a ghost image named 'ghost.png'
 var ghostMoveInterval = 300; // Interval for ghost movement in milliseconds
+
+var level;
+var buff;
+var speed = 4, life = 3;
+var buffs = [{name: "Life +1", effect: function(){life += 1}}, {name: "award +1", effect: function(){award += 2}}]  //need update
+
 
 var round = 1; // 定义回合计数
 
@@ -28,6 +34,7 @@ var ghosts = [
 ];
 
 var beans = [];
+let gamePaused = false;
 
 function generateRandomMap(rows, cols, probabilityOfZero) {
     var map = [];
@@ -66,18 +73,29 @@ function generateRandomMap(rows, cols, probabilityOfZero) {
 
 var map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
 
+function checkDisplayStatus(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        const displayStatus = window.getComputedStyle(element).display;
+        console.log(`Element with ID "${elementId}" has display status: ${displayStatus}`);
+        return displayStatus;
+    } else {
+        console.error(`Element with ID "${elementId}" not found.`);
+        return null;
+    }
+}
+
 function init() {
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
+    
     drawMap();
     drawPacman();
     drawGhosts();
     generateBeans();
     drawBeans();
-    round = 1;
     
     document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
-
     window.addEventListener('keydown', movePacman);
     setInterval(refreshMap, refreshInterval);
     setInterval(moveGhosts, ghostMoveInterval);
@@ -142,10 +160,49 @@ function drawBeans() {
 }
 
 function updateBeanCounter() {
-    document.getElementById('bean-counter').innerText = `剩余豆子: ${beans.length}`;
+    const beanCounterElement = document.getElementById('bean-counter');
+    console.log("bean-counter:", document.getElementById('bean-counter'));
+    if (beanCounterElement) {
+        beanCounterElement.innerText = `剩余豆子: ${beans.length}`;
+    }
+}
+
+function onBuffSelected() {
+    console.log("select buff already");
+    // 隐藏 buff 界面
+    document.getElementById('buff').style.display = 'none';
+    document.getElementById('canvas').style.display='block';
+    document.getElementById('bean-counter').style.display='block';
+    document.getElementById('round-counter').style.display='block';
+    document.querySelector('.info').style.display='block';
+    // 刷新关卡逻辑
+    ghostMoveInterval *= 0.6; // 提升10%
+    beannum += 5;
+    map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
+    generateBeans();
+    round++; // 增加回合计数
+    const roundCounterElement = document.getElementById('round-counter');
+    if (roundCounterElement) {
+        roundCounterElement.innerText = `回合: ${round}`; // 更新显示的回合计数
+        console.log("round: ", round);
+    }
+
+    // 恢复游戏
+    gamePaused = false;
+
+    // 重新绘制地图、Pac-Man 和幽灵
+    console.log("refresh map",mapElements);
+    ctx = canvas.getContext('2d');
+    drawMap();
+    drawPacman();
+    drawGhosts();
+    drawBeans();
 }
 
 function movePacman(event) {
+
+    if (gamePaused) return; // 如果游戏暂停，则不执行移动逻辑
+
     var newX = pacman.x;
     var newY = pacman.y;
 
@@ -184,17 +241,25 @@ function movePacman(event) {
         updateBeanCounter();
         
         if (beans.length === 0) {
-            alert("Next Round");
-            ghostMoveInterval *= 0.6; // 提升10%
-            beannum += 5;
-            map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
-            generateBeans(beannum);
-            round++; // 增加回合计数
-            document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
+            gamePaused = true; // 暂停游戏
+            document.getElementById('canvas').style.display = "none";
+            document.getElementById('bean-counter').style.display = "none";
+            document.getElementById('round-counter').style.display = "none";
+            document.querySelector('.info').style.display = "none";
+
+            document.querySelector('.levelwin').style.display = 'block'; // 显示 levelwin 界面
+                    // Add event listener to the next level button
+            document.getElementById('nextlevel').addEventListener('click', function() {
+                // Clear the canvas
+                document.getElementById('levelwin').style.display = 'none';
+                document.getElementById('buff').style.display = 'block';
+
+                // Call givebuff function to test
+                givebuff();
+            });
         }
 
         // Redraw the map, Pac-Man, and ghosts
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawMap();
         drawPacman();
         drawGhosts();
@@ -203,6 +268,8 @@ function movePacman(event) {
 }
 
 function moveGhosts() {
+    if (gamePaused) return; // 如果游戏暂停，则不执行移动逻辑
+
     ghosts.forEach(function(ghost) {
         var directions = [
             { x: 0, y: -1 }, // Up
@@ -242,6 +309,7 @@ function checkCollisionWithGhosts() {
 }
 
 function refreshMap() {
+
     // Remove certain number of walls
     for (var i = 0; i < wallsToRemove; i++) {
         var row, col;
@@ -316,3 +384,25 @@ document.getElementById('startButton').addEventListener('click', function() {
     document.getElementById('canvas').style.display = 'block';
     init();
 });
+
+function chooseBuff(){
+    return new Promise((resolve) => {
+        document.getElementById('buff1').addEventListener('click', function() {       
+            console.log("select buffing0");    
+            resolve(0);
+        });
+
+        document.getElementById('buff2').addEventListener('click', function() {
+            console.log("select buffing1");    
+            resolve(1);
+        });
+    });
+}
+
+
+// 修改 givebuff 函数，选择 buff 后调用 onBuffSelected
+async function givebuff() {
+    var buffIndex = await chooseBuff();
+    buffs[buffIndex].effect();
+    onBuffSelected(); // 选择 buff 后调用刷新关卡逻辑
+}
