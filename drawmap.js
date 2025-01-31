@@ -10,10 +10,21 @@ var pacman = { x: 1, y: 1 }; // Initial position of Pac-Man
 var pacmanImage = new Image();
 pacmanImage.src = 'bluetiger.png';
 var refreshInterval = 1000; // Refresh interval in milliseconds
+
+var hwallImage = new Image();
+hwallImage.src = 'horizontal_wall_moss.png';
+var vwallImage = new Image();
+vwallImage.src = 'vertical_wall_moss.png';
+var nwallImage = new Image();
+nwallImage.src = 'horizontal_wall.png';
 var wallsToRemove = 10;
 var wallsToAdd = 11;
 var wallDensity = 0.85;
+
 var beannum = 10;
+var beanImage = new Image();
+beanImage.src = 'bean.png';
+
 var ghostImage = new Image();
 ghostImage.src = 'manuel.png'; // The ghost image named 'ghost.png'
 var ghostMoveInterval = 10; // Interval for ghost movement in milliseconds
@@ -99,16 +110,23 @@ function drawMap() {
             var x = col * tileSize;
             var y = row * tileSize;
 
-            switch (tile) {
-                case 0:
-                    ctx.fillStyle = 'white'; // Empty space
-                    break;
-                case 1:
-                    ctx.fillStyle = 'gray'; // Wall
-                    break;
+            if (tile === 0) {
+                // Empty space
+                ctx.fillStyle = 'white';
+                ctx.fillRect(x, y, tileSize, tileSize);
+            } else if (tile === 1) {
+                // Draw walls based on position
+                if (row === 0 || row === map.length - 1) {
+                    // Horizontal boundary walls
+                    ctx.drawImage(hwallImage, x, y, tileSize, tileSize);
+                } else if (col === 0 || col === map[row].length - 1) {
+                    // Vertical boundary walls
+                    ctx.drawImage(vwallImage, x, y, tileSize, tileSize);
+                } else {
+                    // Inner walls
+                    ctx.drawImage(nwallImage, x, y, tileSize, tileSize);
+                }
             }
-
-            ctx.fillRect(x, y, tileSize, tileSize);
         }
     }
 }
@@ -142,10 +160,12 @@ function generateBeans() {
 // 绘制豆子
 function drawBeans() {
     beans.forEach(function(bean) {
-        ctx.beginPath();
-        ctx.arc((bean.x + 0.5) * tileSize, (bean.y + 0.5) * tileSize, tileSize / 15, 0, 2 * Math.PI);
-        ctx.fillStyle = 'blue';
-        ctx.fill();
+        ctx.drawImage(beanImage, 
+            bean.x * tileSize + (tileSize - tileSize/2)/2, // center the bean horizontally
+            bean.y * tileSize + (tileSize - tileSize/2)/2, // center the bean vertically
+            tileSize/2, // make bean slightly smaller than tile
+            tileSize/2
+        );
     });
 }
 
