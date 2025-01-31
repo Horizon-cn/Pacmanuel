@@ -15,7 +15,7 @@ var wallsToAdd = 11;
 var wallDensity = 0.85;
 var beannum = 10;
 var ghostImage = new Image();
-ghostImage.src = 'manuel.png'; // Assuming you have a ghost image named 'ghost.png'
+ghostImage.src = 'manuel.png'; // The ghost image named 'ghost.png'
 var ghostMoveInterval = 50; // Interval for ghost movement in milliseconds
 
 var round = 1; // 定义回合计数
@@ -35,7 +35,7 @@ var ghosts = [
 
 var beans = [];
 
-var collisionCheckInterval = 500; // Check collision every 1000ms (1 second)
+var collisionCheckInterval = 200; // Check collision every 1000ms (1 second)
 var lastCollisionCheck = 0; // Track when we last checked for collision
 
 function generateRandomMap(rows, cols, probabilityOfZero) {
@@ -226,14 +226,18 @@ function movePacman(event) {
         updateBeanCounter();
         updateGpaCounter();
         
+        // Next level difficulty
         if (beans.length === 0) {
-            alert("Next Round");
-            ghostMoveInterval *= 0.6; // 提升10%
-            beannum += 5;
-            map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
-            generateBeans(beannum);
-            round++; // 增加回合计数
-            document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
+            setTimeout(function() {
+                alert("Next Level!");
+                ghostMoveInterval *= 0.6; // 提升10%
+                ghostSpeed *= 1.5; // 提升20%
+                beannum += 5;
+                map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
+                generateBeans(beannum);
+                round++; // 增加回合计数
+                document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
+            }, 100);
         }
 
         // Redraw the map, Pac-Man, and ghosts
@@ -322,44 +326,73 @@ function checkCollisionWithGhosts() {
     });
 }
 
+// Add this helper function
+function isTileEmpty(row, col) {
+    // Check if tile has no wall
+    if (map[row][col] === 1) return false;
+    
+    // Check if pacman is there
+    if (pacman.x === col && pacman.y === row) return false;
+    
+    // Check if any ghost is there
+    for (var i = 0; i < ghosts.length; i++) {
+        if (Math.floor(ghosts[i].pixelX / tileSize) === col && 
+            Math.floor(ghosts[i].pixelY / tileSize) === row) {
+            return false;
+        }
+    }
+    
+    // Check if any bean is there
+    for (var i = 0; i < beans.length; i++) {
+        if (beans[i].x === col && beans[i].y === row) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// Replace the refreshMap function
 function refreshMap() {
-    // Remove certain number of walls
-    for (var i = 0; i < wallsToRemove; i++) {
-        var row, col;
-        do {
-            row = Math.floor(Math.random() * (map.length - 2)) + 1;
-            col = Math.floor(Math.random() * (map[0].length - 2)) + 1;
-        } while (map[row][col] !== 1 || (row === pacman.y && col === pacman.x));
-        map[row][col] = 0;
+    // Store positions of walls to remove
+    var wallsToRemoveList = [];
+    
+    // Find existing walls that can be removed
+    for (var row = 1; row < map.length - 1; row++) {
+        for (var col = 1; col < map[0].length - 1; col++) {
+            if (map[row][col] === 1) {
+                wallsToRemoveList.push({row: row, col: col});
+            }
+        }
+    }
+    
+    // Randomly select and remove walls
+    for (var i = 0; i < Math.min(wallsToRemove, wallsToRemoveList.length); i++) {
+        var index = Math.floor(Math.random() * wallsToRemoveList.length);
+        var pos = wallsToRemoveList[index];
+        map[pos.row][pos.col] = 0;
+        wallsToRemoveList.splice(index, 1);
+    }
+    
+    // Find empty tiles for new walls
+    var emptyTiles = [];
+    for (var row = 1; row < map.length - 1; row++) {
+        for (var col = 1; col < map[0].length - 1; col++) {
+            if (isTileEmpty(row, col)) {
+                emptyTiles.push({row: row, col: col});
+            }
+        }
+    }
+    
+    // Add new walls on empty tiles
+    for (var i = 0; i < Math.min(wallsToAdd, emptyTiles.length); i++) {
+        var index = Math.floor(Math.random() * emptyTiles.length);
+        var pos = emptyTiles[index];
+        map[pos.row][pos.col] = 1;
+        emptyTiles.splice(index, 1);
     }
 
-    // Add certain number of walls
-    for (var i = 0; i < wallsToAdd; i++) {
-        var row, col;
-        var isValidPosition;
-        do {
-            row = Math.floor(Math.random() * (map.length - 2)) + 1;
-            col = Math.floor(Math.random() * (map[0].length - 2)) + 1;
-
-            // 检查新生成的墙是否与ghost的位置重合
-            isValidPosition = true;
-            for (var j = 0; j < ghosts.length; j++) {
-                if (ghosts[j].x === col && ghosts[j].y === row) {
-                    isValidPosition = false;
-                    break;
-                }
-            }
-            for (var k = 0; k < beans.length; k++) {
-                if (beans[k].x === col && beans[k].y === row) {
-                    isValidPosition = false;
-                    break;
-                }
-            }
-        } while (map[row][col] !== 0 || (row === pacman.y && col === pacman.x) || !isValidPosition);
-        map[row][col] = 1;
-    }
-
-    // Redraw the map, Pac-Man, and ghosts
+    // Redraw everything
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawMap();
     drawPacman();
@@ -381,7 +414,8 @@ function resetGame() {
     map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
     beannum = 10;
     hp = 100;
-    ghostMoveInterval = 300;
+    ghostMoveInterval = 50;
+    ghostSpeed = 2;
     round = 1;
     lastCollisionCheck = 0;
     document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
