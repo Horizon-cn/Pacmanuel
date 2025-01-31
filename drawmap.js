@@ -16,21 +16,27 @@ var wallDensity = 0.85;
 var beannum = 10;
 var ghostImage = new Image();
 ghostImage.src = 'manuel.png'; // Assuming you have a ghost image named 'ghost.png'
-var ghostMoveInterval = 300; // Interval for ghost movement in milliseconds
+var ghostMoveInterval = 50; // Interval for ghost movement in milliseconds
 
 var round = 1; // 定义回合计数
 var gpa = 1.0; // 定义初始得分
 
+var ghostSpeed = 2; // pixels per frame
+var ghostSize = tileSize; // size of ghost sprite
+
 var ghosts = [
-    { x: 12, y: 1 },
-    { x: 1, y: 12 },
-    { x: 13, y: 10 },
-    { x: 13, y: 10 },
-    { x: 13, y: 10 },
-    { x: 13, y: 10 }
+    { x: 12, y: 1, pixelX: 12 * tileSize, pixelY: 1 * tileSize, targetX: 12, targetY: 1 },
+    { x: 1, y: 12, pixelX: 1 * tileSize, pixelY: 12 * tileSize, targetX: 1, targetY: 12 },
+    { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
+    { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
+    { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
+    { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 }
 ];
 
 var beans = [];
+
+var collisionCheckInterval = 500; // Check collision every 1000ms (1 second)
+var lastCollisionCheck = 0; // Track when we last checked for collision
 
 function generateRandomMap(rows, cols, probabilityOfZero) {
     var map = [];
@@ -115,9 +121,7 @@ function drawPacman() {
 
 function drawGhosts() {
     ghosts.forEach(function(ghost) {
-        var x = ghost.x * tileSize;
-        var y = ghost.y * tileSize;
-        ctx.drawImage(ghostImage, x, y, tileSize, tileSize);
+        ctx.drawImage(ghostImage, ghost.pixelX, ghost.pixelY, ghostSize, ghostSize);
     });
 }
 
@@ -200,17 +204,21 @@ function movePacman(event) {
     drawMap();
     drawGhosts();
     
-    // Check for collision with the ghosts
-    if (checkCollisionWithGhosts()) {
-        hp -= 25;
-        updateHpCounter();
-        if (hp <= 0) {
-            // Delay the alert to ensure the ghost image overlaps with Pac-Man
-            setTimeout(function() {
-                alert("Game Over! Pac-Man has been caught by Professor Manuel.");
-                resetGame();
-            }, 100);
+    // Check for collision with the ghosts using time interval
+    var currentTime = Date.now();
+    if (currentTime - lastCollisionCheck >= collisionCheckInterval) {
+        if (checkCollisionWithGhosts()) {
+            hp -= 25;
+            updateHpCounter();
+            if (hp <= 0) {
+                // Delay the alert to ensure the ghost image overlaps with Pac-Man
+                setTimeout(function() {
+                    alert("Game Over! Pac-Man has been caught by Professor Manuel.");
+                    resetGame();
+                }, 100);
+            }
         }
+        lastCollisionCheck = currentTime;
     } else {
         beans = beans.filter(function(bean) {
             return !(bean.x === pacman.x && bean.y === pacman.y);
@@ -238,47 +246,79 @@ function movePacman(event) {
 }
 
 function moveGhosts() {
+    // Only check collision if enough time has passed
+    var currentTime = Date.now();
+    var shouldCheckCollision = currentTime - lastCollisionCheck >= collisionCheckInterval;
+    
     ghosts.forEach(function(ghost) {
-        var directions = [
-            { x: 0, y: -1 }, // Up
-            { x: 0, y: 1 },  // Down
-            { x: -1, y: 0 }, // Left
-            { x: 1, y: 0 }   // Right
-        ];
-        var direction = directions[Math.floor(Math.random() * directions.length)];
-        var newX = ghost.x + direction.x;
-        var newY = ghost.y + direction.y;
+        // Check if ghost reached its target
+        if (Math.abs(ghost.pixelX - ghost.targetX * tileSize) < ghostSpeed &&
+            Math.abs(ghost.pixelY - ghost.targetY * tileSize) < ghostSpeed) {
+            
+            ghost.pixelX = ghost.targetX * tileSize;
+            ghost.pixelY = ghost.targetY * tileSize;
+            ghost.x = ghost.targetX;
+            ghost.y = ghost.targetY;
 
-        // Check if the new position is within bounds and not a wall
-        if (newX >= 1 && newX < map[0].length - 1 && newY >= 1 && newY < map.length - 1 && map[newY][newX] === 0) {
-            ghost.x = newX;
-            ghost.y = newY;
+            // Choose new target
+            var directions = [
+                { x: 0, y: -1 }, // Up
+                { x: 0, y: 1 },  // Down
+                { x: -1, y: 0 }, // Left
+                { x: 1, y: 0 }   // Right
+            ];
+            
+            var validDirections = directions.filter(dir => {
+                let newX = ghost.x + dir.x;
+                let newY = ghost.y + dir.y;
+                return newX >= 1 && newX < map[0].length - 1 && 
+                       newY >= 1 && newY < map.length - 1 && 
+                       map[newY][newX] === 0;
+            });
+
+            if (validDirections.length > 0) {
+                var direction = validDirections[Math.floor(Math.random() * validDirections.length)];
+                ghost.targetX = ghost.x + direction.x;
+                ghost.targetY = ghost.y + direction.y;
+            }
         }
+
+        // Move towards target
+        var dx = ghost.targetX * tileSize - ghost.pixelX;
+        var dy = ghost.targetY * tileSize - ghost.pixelY;
+        
+        if (dx !== 0) ghost.pixelX += Math.sign(dx) * ghostSpeed;
+        if (dy !== 0) ghost.pixelY += Math.sign(dy) * ghostSpeed;
     });
-    // Redraw the map, Pac-Man, and ghosts
+
+    // Redraw everything
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawMap();
     drawPacman();
     drawGhosts();
     drawBeans();
 
-    // Check for collision with Pac-Man
-    if (checkCollisionWithGhosts()) {
-        hp -= 25;
-        updateHpCounter();
-        if (hp <= 0) {
-            // Delay the alert to ensure the ghost image overlaps with Pac-Man
-            setTimeout(function() {
-                alert("Game Over! Pac-Man has been caught by Professor Manuel.");
-                resetGame();
-            }, 100);
+    // Modified collision check using time interval
+    if (shouldCheckCollision) {
+        if (checkCollisionWithGhosts()) {
+            hp -= 25;
+            updateHpCounter();
+            if (hp <= 0) {
+                setTimeout(function() {
+                    alert("Game Over! Pac-Man has been caught by Professor Manuel.");
+                    resetGame();
+                }, 100);
+            }
         }
+        lastCollisionCheck = currentTime;
     }
 }
 
 function checkCollisionWithGhosts() {
     return ghosts.some(function(ghost) {
-        return ghost.x === pacman.x && ghost.y === pacman.y;
+        var dx = Math.abs(ghost.pixelX - (pacman.x * tileSize));
+        var dy = Math.abs(ghost.pixelY - (pacman.y * tileSize));
+        return dx < tileSize/2 && dy < tileSize/2;
     });
 }
 
@@ -330,12 +370,12 @@ function refreshMap() {
 function resetGame() {
     pacman = { x: 1, y: 1 }; // Reset Pac-Man's position
     ghosts = [
-        { x: 12, y: 1 },
-        { x: 1, y: 12 },
-        { x: 13, y: 10 },
-        { x: 13, y: 10 },
-        { x: 13, y: 10 },
-        { x: 13, y: 10 }
+        { x: 12, y: 1, pixelX: 12 * tileSize, pixelY: 1 * tileSize, targetX: 12, targetY: 1 },
+        { x: 1, y: 12, pixelX: 1 * tileSize, pixelY: 12 * tileSize, targetX: 1, targetY: 12 },
+        { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
+        { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
+        { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
+        { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 }
     ]; // Reset ghosts' positions
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
@@ -343,6 +383,7 @@ function resetGame() {
     hp = 100;
     ghostMoveInterval = 300;
     round = 1;
+    lastCollisionCheck = 0;
     document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
 
     drawMap();
