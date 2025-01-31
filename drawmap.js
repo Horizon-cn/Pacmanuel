@@ -28,9 +28,9 @@ var ghosts = [
     { x: 12, y: 1, pixelX: 12 * tileSize, pixelY: 1 * tileSize, targetX: 12, targetY: 1 },
     { x: 1, y: 12, pixelX: 1 * tileSize, pixelY: 12 * tileSize, targetX: 1, targetY: 12 },
     { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
-    { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
-    { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
-    { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 }
+    { x: 12, y: 11, pixelX: 12 * tileSize, pixelY: 11 * tileSize, targetX: 12, targetY: 11 },
+    { x: 11, y: 12, pixelX: 11 * tileSize, pixelY: 12 * tileSize, targetX: 11, targetY: 12 },
+    { x: 11, y: 14, pixelX: 11 * tileSize, pixelY: 14 * tileSize, targetX: 11, targetY: 14 }
 ];
 
 var beans = [];
@@ -255,7 +255,7 @@ function moveGhosts() {
     var currentTime = Date.now();
     var shouldCheckCollision = currentTime - lastCollisionCheck >= collisionCheckInterval;
     
-    ghosts.forEach(function(ghost) {
+    ghosts.forEach(function(ghost,index) {
         // Check if ghost reached its target
         if (Math.abs(ghost.pixelX - ghost.targetX * tileSize) < ghostSpeed &&
             Math.abs(ghost.pixelY - ghost.targetY * tileSize) < ghostSpeed) {
@@ -276,9 +276,19 @@ function moveGhosts() {
             var validDirections = directions.filter(dir => {
                 let newX = ghost.x + dir.x;
                 let newY = ghost.y + dir.y;
+
+                var ghostcollision = false;
+                for (var i = 0; i < ghosts.length; i++) {
+                    if (i === index) continue;
+                    var otherGhost = ghosts[i];
+                    if (Math.abs(ghost.pixelX - otherGhost.pixelX) < tileSize &&
+                Math.abs(ghost.pixelY - otherGhost.pixelY) < tileSize)
+                        ghostcollision = true;
+                }
+
                 return newX >= 1 && newX < map[0].length - 1 && 
                        newY >= 1 && newY < map.length - 1 && 
-                       map[newY][newX] === 0;
+                       map[newY][newX] === 0 && !ghostcollision;
             });
 
             if (validDirections.length > 0) {
@@ -294,6 +304,20 @@ function moveGhosts() {
         
         if (dx !== 0) ghost.pixelX += Math.sign(dx) * ghostSpeed;
         if (dy !== 0) ghost.pixelY += Math.sign(dy) * ghostSpeed;
+    });
+
+    ghosts.forEach(function(ghost, index) {
+        for (var i = index + 1; i < ghosts.length; i++) {
+            var otherGhost = ghosts[i];
+            if (Math.abs(ghost.pixelX - otherGhost.pixelX) < tileSize &&
+                Math.abs(ghost.pixelY - otherGhost.pixelY) < tileSize) {
+                // Reverse direction
+                ghost.targetX = ghost.x - (ghost.targetX - ghost.x);
+                ghost.targetY = ghost.y - (ghost.targetY - ghost.y);
+                otherGhost.targetX = otherGhost.x - (otherGhost.targetX - otherGhost.x);
+                otherGhost.targetY = otherGhost.y - (otherGhost.targetY - otherGhost.y);
+            }
+        }
     });
 
     // Redraw everything
@@ -424,10 +448,10 @@ function resetGame() {
         { x: 12, y: 1, pixelX: 12 * tileSize, pixelY: 1 * tileSize, targetX: 12, targetY: 1 },
         { x: 1, y: 12, pixelX: 1 * tileSize, pixelY: 12 * tileSize, targetX: 1, targetY: 12 },
         { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
-        { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
-        { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 },
-        { x: 13, y: 10, pixelX: 13 * tileSize, pixelY: 10 * tileSize, targetX: 13, targetY: 10 }
-    ]; // Reset ghosts' positions
+        { x: 12, y: 11, pixelX: 12 * tileSize, pixelY: 11 * tileSize, targetX: 12, targetY: 11 },
+        { x: 11, y: 12, pixelX: 11 * tileSize, pixelY: 12 * tileSize, targetX: 11, targetY: 12 },
+        { x: 11, y: 14, pixelX: 11 * tileSize, pixelY: 14 * tileSize, targetX: 11, targetY: 14 }
+    ];
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
     beannum = 10;
