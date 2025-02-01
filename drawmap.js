@@ -8,31 +8,31 @@ var height = 640;
 var hp = 100;
 var pacman = { x: 1, y: 1 }; // Initial position of Pac-Man
 var pacmanImage = new Image();
-pacmanImage.src = 'bluetiger.png';
+pacmanImage.src = './static/image/bluetiger.png';
 var refreshInterval = 1000; // Refresh interval in milliseconds
 
 var hwallImage = new Image();
-hwallImage.src = 'horizontal_wall_moss.png';
+hwallImage.src = './static/image/horizontal_wall_moss.png';
 var vwallImage = new Image();
-vwallImage.src = 'vertical_wall_moss.png';
+vwallImage.src = './static/image/vertical_wall_moss.png';
 var nwallImage = new Image();
-nwallImage.src = 'horizontal_wall.png';
+nwallImage.src = './static/image/horizontal_wall.png';
 var wallsToRemove = 10;
 var wallsToAdd = 11;
 var wallDensity = 0.85;
 
 var beannum = 10;
 var beanImage = new Image();
-beanImage.src = 'bean.png';
+beanImage.src = "./static/image/bean.png";
 
 var ghostImage = new Image();
-ghostImage.src = 'manuel.png'; // The ghost image named 'ghost.png'
+ghostImage.src = './static/image/manuel.png'; // The ghost image named 'ghost.png'
 var ghostMoveInterval = 10; // Interval for ghost movement in milliseconds
 
 var level;
 var buff;
 var speed = 4, life = 3;
-var buffs = [{name: "Life +1", effect: function(){life += 1}}, {name: "award +1", effect: function(){award += 2}}]  //need update
+var buffs = [{name: "Hp +25", effect: function(){if(hp != 100)hp += 25; updateHpCounter();}}, {name: "award +1", effect: function(){award += 2}}]  //need update
 
 
 var round = 1; // 定义回合计数
