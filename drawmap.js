@@ -32,7 +32,10 @@ var ghostMoveInterval = 10; // Interval for ghost movement in milliseconds
 var level;
 var buff;
 var speed = 4, life = 3;
-var buffs = [{name: "Hp +25", effect: function(){if(hp != 100)hp += 25; updateHpCounter();}}, {name: "gpa +1", effect: function(){award += 2}}]  //need update
+var buffs = [
+    {name: "Hp +25", effect: function(){if(hp != 100)hp += 25; updateHpCounter();}}, 
+    {name: "Beannum need -2", effect: function(){beannum -= 2}}
+]  //need update
 
 
 var round = 1; // 定义回合计数

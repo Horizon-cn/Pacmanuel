@@ -27,17 +27,6 @@
     margin-bottom: 20px;
 }
 
-.buff {
-    display: none;
-    text-align: center;
-    background-size: cover;
-    padding: 40px;
-    border-radius: 20px;
-    font-family: 'Courier New', Courier, monospace;
-    color: #000000;
-    border: 4px solid #fff; /* 白色边框 */
-    z-index: 10;
-}
 #nextlevel, #endgame, #buff1, #buff2, #reset, #endgamelose, #start{
     z-index: 11;
     display: block;
@@ -45,7 +34,7 @@
     padding: 20px 50px;
     font-size: 16px;
     cursor: pointer;
-    background-color: transparent; /* 按钮背景颜色 */
+    background-color: black; /* 按钮背景颜色 */
     border: none; /* 去除按钮边框 */
     border-radius: 5px; /* 按钮圆角 */
 }
@@ -54,28 +43,28 @@
 #nextlevel {
     background-color: transparent;
     position: absolute;
-    top: 390px;
+    top: 395px;
     left: 265px
 }
 
 #endgame {
     background-color: transparent;
     position: absolute;
-    top: 390px;
+    top: 395px;
     left: 595px
 }
 
 #buff1 {
     background-color: transparent;
     position: absolute;
-    top: 390px;
+    top: 395px;
     left: 265px
 }
 
 #buff2 {
     background-color: transparent;
     position: absolute;
-    top: 390px;
+    top: 395px;
     left: 595px
 }
 
