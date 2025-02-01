@@ -19,11 +19,26 @@
             display: none;
             border: 2px solid #000000;
         }
+        .start-image {
+            position: absolute;
+            z-index: 10;
+            width: 960px;
+            height: 640px;
+            object-fit: contain; /* 调整图像以适应容器 */
+            top: 100px;
+            left: 200px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
         #startButton {
             display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
+            position: absolute;
+            margin: 10px;
+            padding: 10px;
+            top: 100px;
+            left: 200px;
             font-size: 20px;
+            z-index: 20;
         }
         .info {
             display: none;
@@ -79,7 +94,10 @@
 <body>
     
     <div class="title">Pacmanuel</div>
-    <button id="startButton">Start</button>
+    <div class="startpage" style="display: block;">
+        <img src="./static/style/PNG/LEVEL WIN.png" alt="Start Image" class="start-image">
+        <button id="startButton">Start</button>
+    </div>
     <canvas id="canvas" width="960" height="640"></canvas>
     <script src="drawmap.js"></script>
 
@@ -101,7 +119,8 @@
             document.getElementById('bean-counter').style.display = 'block';
             document.getElementById('round-counter').style.display = 'block';
             document.getElementById('gpa-counter').style.display = 'block';
-            this.style.display = 'none';
+            document.getElementById('startButton').style.display = 'none';
+            document.querySelector('.start-image').style.display = 'none';
         });
     </script>
 
@@ -116,6 +135,12 @@
         <img src="./static/style/PNG/BUFF.png" alt="BUFF Image" class="buff-image">
         <button id="buff1"> </button>
         <button id="buff2"> </button>
+    </div>
+
+    <div class="levellose" id="levellose" style="display: none;">
+        <img src="./static/style/PNG/LEVEL WIN.png" alt="Level Lose Image" class="levellose-image">
+        <button id="reset"> </button>
+        <button id="endgamelose"> </button>
     </div>
 
 </body>
