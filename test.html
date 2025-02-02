@@ -19,33 +19,10 @@
             display: none;
             border: 2px solid #000000;
         }
-        .startpage {
-            position: relative;
-            justify-content: center;
-            width: 960px;
-            height: 640px;
-            object-fit: contain; /* 调整图像以适应容器 */
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .start-image {
-            position: absolute;
-            justify-content: center;
-            width: 960px;
-            height: 640px;
-            top: 0;
-            left: 0;
-            object-fit: contain; /* 调整图像以适应容器 */
-            align-items: center;
-            margin-bottom: 20px;
-        }
         #startButton {
             display: block;
-            position: absolute;
-            width: 180px;
-            height: 35px;
-            top: 390px;
-            left: 390px;
+            margin: 20px auto;
+            padding: 10px 20px;
             font-size: 20px;
             position: relative;
             z-index: 1001;
@@ -146,8 +123,6 @@
             document.getElementById('bean-counter').style.display = 'block';
             document.getElementById('round-counter').style.display = 'block';
             document.getElementById('gpa-counter').style.display = 'block';
-            document.getElementById('startButton').style.display = 'none';
-            document.querySelector('.start-image').style.display = 'none';
         });
     </script>
 

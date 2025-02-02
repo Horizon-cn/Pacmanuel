@@ -701,14 +701,8 @@ function resetGame() {
 
 // Start the game when the "Start" button is clicked
 document.getElementById('startButton').addEventListener('click', function() {
-    document.getElementById('canvas').style.display = 'block';
-    document.querySelector('.info').style.display = 'block';
-    document.getElementById('hp-counter').style.display = 'block';
-    document.getElementById('bean-counter').style.display = 'block';
-    document.getElementById('round-counter').style.display = 'block';
-    document.getElementById('gpa-counter').style.display = 'block';
     document.getElementById('startButton').style.display = 'none';
-    document.querySelector('.start-image').style.display = 'none';
+    document.getElementById('canvas').style.display = 'block';
     init();
 });
 
