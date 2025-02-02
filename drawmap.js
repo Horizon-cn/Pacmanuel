@@ -266,7 +266,6 @@ function drawBeans() {
 
 function updateBeanCounter() {
     const beanCounterElement = document.getElementById('bean-counter');
-    console.log("bean-counter:", document.getElementById('bean-counter'));
     if (beanCounterElement) {
         beanCounterElement.innerText = `剩余豆子: ${beans.length}`;
     }
@@ -469,7 +468,7 @@ function movePacman(event) {
 function nextLevelHandler() {
     // Clear the canvas
     document.getElementById('levelwin').style.display = 'none';
-    document.getElementById('buff').style.display = 'block';
+    document.querySelector('.buff').style.display = 'block';
 
     // Call givebuff function to test
     givebuff();
