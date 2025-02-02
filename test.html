@@ -121,7 +121,7 @@
             position: fixed;
             width: 100%;
             height: 100%;
-            background-image: url('./images/level_page/level_Shade.png');
+            background-image: url('./images/level_page/failure_page.png');
             background-size: cover;
             background-position: center;
             z-index: 1000;
@@ -129,18 +129,31 @@
             justify-content: center;
             align-items: center;
         }
-        #nextlevel, #reset {
+        #nextlevel{
             display: block;
             font-size: 20px;
             position: relative;
             z-index: 1001;
             opacity: 0;
-            background-color: transparent;
+            background-color: black;
             cursor: pointer;
             width: 230px;
             height: 90px;
             top: 85%;
-            left: 65%;
+            left: 20%;
+        }
+        #reset{
+            display: block;
+            font-size: 20px;
+            position: relative;
+            z-index: 1001;
+            opacity: 0;
+            background-color: black;
+            cursor: pointer;
+            width: 380px;
+            height: 90px;
+            top: 85%;
+            left: 15%;
         }
         #buff1, #buff2 {
             display: block;
