@@ -91,9 +91,8 @@ var buffEffects = [
         name: "Freeze Ghosts",
         image: buffImage1,
         apply: function() {
-            tempspeed  = ghostSpeed;
             ghostSpeed = 0; // Effectively freeze ghosts
-            setTimeout(() => { ghostSpeed = tempspeed; }, 5000);
+            setTimeout(() => { ghostSpeed = originalGhostSpeed; }, 5000);
             showMessage("❄️ All ghosts frozen for 5 seconds!");
         }
     },
@@ -101,9 +100,8 @@ var buffEffects = [
         name: "Damage Reduction",
         image: buffImage2,
         apply: function() {
-            tempharm = ghostHarm;
             ghostHarm = 10;
-            setTimeout(() => { ghostHarm = tempharm; }, 5000);
+            setTimeout(() => { ghostHarm = originalGhostHarm; }, 5000);
             showMessage(`🛡️ Ghost damage reduced to ${ghostHarm} for 5 seconds!`);
         }
     },
