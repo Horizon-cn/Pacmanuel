@@ -418,6 +418,8 @@ function movePacman(event) {
         // Next level difficulty
         if (beans.length === 0) {
             gamePaused = true; // 暂停游戏
+            var audio = document.getElementById('winSound');
+            audio.play();
             document.getElementById('canvas').style.display = "none";
             document.getElementById('bean-counter').style.display = "none";
             document.getElementById('round-counter').style.display = "none";
