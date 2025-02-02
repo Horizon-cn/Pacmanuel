@@ -59,7 +59,7 @@ var ghosts = [
 var beans = [];
 let gamePaused = false;
 
-var collisionCheckInterval = 150; // Check collision every 1000ms (1 second)
+var collisionCheckInterval = 80; // Check collision every 1000ms (1 second)
 var lastCollisionCheck = 0; // Track when we last checked for collision
 
 var buffPoints = [];
