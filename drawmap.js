@@ -308,7 +308,11 @@ function movePacman(event) {
         }
     } else {
         beans = beans.filter(function(bean) {
-            return !(bean.x === pacman.x && bean.y === pacman.y);
+            if (bean.x === pacman.x && bean.y === pacman.y) {
+                playCoinSound(); // 播放音频
+                return false;
+            }
+            return true;
         });
         updateBeanCounter();
         updateGpaCounter();
@@ -345,6 +349,11 @@ function nextLevelHandler() {
 
     // Call givebuff function to test
     givebuff();
+}
+
+function playCoinSound() {
+    var audio = document.getElementById('coinSound');
+    audio.play();
 }
 
 function moveGhosts() {
