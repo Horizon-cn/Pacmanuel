@@ -12,11 +12,11 @@ pacmanImage.src = './static/image/bluetiger.png';
 var refreshInterval = 1000; // Refresh interval in milliseconds
 
 var hwallImage = new Image();
-hwallImage.src = './static/image/horizontal_wall_moss.png';
+hwallImage.src = './images/walls/floor_with_flower.png';
 var vwallImage = new Image();
-vwallImage.src = './static/image/vertical_wall_moss.png';
+vwallImage.src = './images/walls/sidewall_flower.png';
 var nwallImage = new Image();
-nwallImage.src = './static/image/horizontal_wall.png';
+nwallImage.src = './images/walls/sidewall_no_flower.png';
 var wallsToRemove = 10;
 var wallsToAdd = 11;
 var wallDensity = 0.85;
@@ -39,7 +39,10 @@ var round = 1; // 定义回合计数
 var gpa = 1.0; // 定义初始得分
 
 var ghostSpeed = 2; // pixels per frame
+var normalghostSpeed = ghostSpeed;
 var ghostSize = tileSize; // size of ghost sprite
+var ghostHarm = 25; // damage caused by ghosts
+var normalghostHarm = ghostHarm;
 
 var ghosts = [
     { x: 12, y: 1, pixelX: 12 * tileSize, pixelY: 1 * tileSize, targetX: 12, targetY: 1 },
@@ -59,11 +62,11 @@ var lastCollisionCheck = 0; // Track when we last checked for collision
 var buffPoints = [];
 var activeBuffs = new Set();
 var buffImage1 = new Image();
-buffImage1.src = 'buff1.png'; // Damage reduction buff
+buffImage1.src = 'images/award/award01Image.png'; // Damage reduction buff
 var buffImage2 = new Image();
-buffImage2.src = 'buff2.png'; // Speed reduction buff
+buffImage2.src = 'images/award/award02Image.png'; // Speed reduction buff
 var buffImage3 = new Image();
-buffImage3.src = 'buff3.png'; // Freeze buff
+buffImage3.src = 'images/award/award03Image.png'; // Freeze buff
 
 var originalGhostHarm = 25;
 var originalGhostMoveInterval = 10;
@@ -71,6 +74,47 @@ var originalGhostSpeed = 2;
 
 var lastTime = 0;
 var animationFrameId;
+
+// Add these variables at the top with other variables
+var messages = [];
+var messageTimeout = 2000; // How long each message stays on screen (2 seconds)
+
+// Add this variable near the top with other variables
+var whether_attack = false;
+
+// Modify the buffPoint structure to include image and effect
+var buffPoints = [];
+var buffEffects = [
+    {
+        name: "Freeze Ghosts",
+        image: buffImage1,
+        apply: function() {
+            ghostSpeed = 0; // Effectively freeze ghosts
+            setTimeout(() => { ghostSpeed = normalghostSpeed; }, 5000);
+            showMessage("❄️ All ghosts frozen for 5 seconds!");
+        }
+    },
+    {
+        name: "Damage Reduction",
+        image: buffImage2,
+        apply: function() {
+            ghostHarm = 10;
+            setTimeout(() => { ghostHarm = normalghostHarm; }, 5000);
+            showMessage(`🛡️ Ghost damage reduced to ${ghostHarm} for 5 seconds!`);
+        }
+    },
+    {
+        name: "Ghost Hunter",
+        image: buffImage3,
+        apply: function() {
+            whether_attack = true;
+            showMessage("👻 You can now eat ghosts for 5 seconds!");
+            setTimeout(() => { 
+                whether_attack = false;
+            }, 5000);
+        }
+    }
+];
 
 function generateRandomMap(rows, cols, probabilityOfZero) {
     var map = [];
@@ -314,14 +358,21 @@ function movePacman(event) {
         lastCollisionCheck = currentTime;
         if (checkCollisionWithGhosts()) {
             lastCollisionCheck += 500;
-            hp -= 25;
-            updateHpCounter();
-            if (hp <= 0) {
-                // Delay the alert to ensure the ghost image overlaps with Pac-Man
-                setTimeout(function() {
-                    alert("Game Over! Pac-Man has been caught by Professor Manuel.");
-                    resetGame();
-                }, 100);
+            if (whether_attack) {
+                // Try to eat ghost if we have the buff
+                eatGhost();
+            } else {
+                // Normal collision damage
+                hp -= ghostHarm;
+                showMessage(`👻 Manuel caught you! HP - ${ghostHarm}`);
+                updateHpCounter();
+                if (hp <= 0) {
+                    // Delay the alert to ensure the ghost image overlaps with Pac-Man
+                    setTimeout(function() {
+                        alert("Game Over! Pac-Man has been caught by Professor Manuel.");
+                        resetGame();
+                    }, 100);
+                }
             }
         }
     } else {
@@ -348,6 +399,20 @@ function movePacman(event) {
             document.getElementById('nextlevel').addEventListener('click', nextLevelHandler);
         }
     }
+    
+    // Check for buff collection
+    buffPoints.forEach(function(point) {
+        if (point.active && !point.collected && point.x === pacman.x && point.y === pacman.y) {
+            // Randomly select a buff
+            const randomBuff = buffEffects[Math.floor(Math.random() * buffEffects.length)];
+            point.collected = true;
+            point.effect = randomBuff.apply;
+            point.image = randomBuff.image;
+            
+            // Apply the buff effect
+            point.effect();
+        }
+    });
 }
 
 function nextLevelHandler() {
@@ -424,15 +489,23 @@ function moveGhosts() {
         lastCollisionCheck = currentTime;
         if (checkCollisionWithGhosts()) {
             lastCollisionCheck += 500;
-            hp -= 25;
-            updateHpCounter();
-            if (hp <= 0) {
-                setTimeout(function() {
-                    alert("Game Over! Pac-Man has been caught by Professor Manuel.");
-                    resetGame();
-                }, 100);
+            if (whether_attack) {
+                // Try to eat ghost if we have the buff
+                eatGhost();
+            } else {
+                // Normal collision damage
+                hp -= ghostHarm;
+                showMessage(`👻 Manuel caught you! HP - ${ghostHarm}`);
+                updateHpCounter();
+                if (hp <= 0) {
+                    // Delay the alert to ensure the ghost image overlaps with Pac-Man
+                    setTimeout(function() {
+                        alert("Game Over! Pac-Man has been caught by Professor Manuel.");
+                        resetGame();
+                    }, 100);
+                }
             }
-        }      
+        }
     }
 }
 
@@ -457,6 +530,15 @@ function checkCollisionWithGhosts() {
         var ghostBottom = ghostTop + ghostSize;
 
         return !(pacmanRight <= ghostLeft || pacmanLeft >= ghostRight || pacmanBottom <= ghostTop || pacmanTop >= ghostBottom);
+    });
+}
+
+// Add this new function to handle messages
+function showMessage(text, duration = 2000) {
+    messages.push({
+        text: text,
+        startTime: Date.now(),
+        duration: duration
     });
 }
 
@@ -563,6 +645,7 @@ function resetGame() {
     ghostHarm = originalGhostHarm;
     ghostMoveInterval = originalGhostMoveInterval;
     ghostSpeed = originalGhostSpeed;
+    whether_attack = false;
     document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
 
     drawMap();
@@ -608,9 +691,10 @@ async function givebuff() {
     onBuffSelected(); // 选择 buff 后调用刷新关卡逻辑
 }
 
+// Replace generateBuffPoints function
 function generateBuffPoints() {
     buffPoints = [];
-    while (buffPoints.length < 3) {
+    while (buffPoints.length < 5) {
         var x = Math.floor(Math.random() * (map[0].length - 2)) + 1;
         var y = Math.floor(Math.random() * (map.length - 2)) + 1;
         if (map[y][x] === 0 && 
@@ -618,55 +702,64 @@ function generateBuffPoints() {
             !beans.some(bean => bean.x === x && bean.y === y)) {
             buffPoints.push({ 
                 x: x, 
-                y: y, 
-                type: buffPoints.length + 1, // 1, 2, or 3
-                active: true 
+                y: y,
+                active: true,
+                collected: false,
+                effect: null,
+                image: null
             });
         }
     }
 }
 
+// Modify the drawBuffPoints function to include message drawing
 function drawBuffPoints() {
+    // Draw buff points
     buffPoints.forEach(function(point) {
         if (point.active) {
-            var image;
-            switch(point.type) {
-                case 1: image = buffImage1; break;
-                case 2: image = buffImage2; break;
-                case 3: image = buffImage3; break;
+            if (point.collected && point.image) {
+                ctx.drawImage(point.image, 
+                    point.x * tileSize, 
+                    point.y * tileSize, 
+                    tileSize, 
+                    tileSize
+                );
+            } else {
+                // Draw uncollected buff marker
+                ctx.fillStyle = 'gold';
+                ctx.beginPath();
+                ctx.arc(
+                    point.x * tileSize + tileSize/2,
+                    point.y * tileSize + tileSize/2,
+                    tileSize/4,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
             }
-            ctx.drawImage(image, 
-                point.x * tileSize, 
-                point.y * tileSize, 
-                tileSize, 
-                tileSize
-            );
         }
     });
-}
 
-function applyBuff(type) {
-    switch(type) {
-        case 1: // Damage reduction
-            ghostHarm = originalGhostHarm * 0.5;
-            setTimeout(() => { ghostHarm = originalGhostHarm; }, 5000);
-            break;
-        case 2: // Speed reduction
-            ghostMoveInterval = originalGhostMoveInterval * 2;
-            ghostSpeed = originalGhostSpeed * 0.5;
-            setTimeout(() => { 
-                ghostMoveInterval = originalGhostMoveInterval;
-                ghostSpeed = originalGhostSpeed;
-            }, 5000);
-            break;
-        case 3: // Freeze
-            let oldInterval = ghostMoveInterval;
-            ghostMoveInterval = 1000000; // Effectively freeze ghosts
-            setTimeout(() => { ghostMoveInterval = oldInterval; }, 5000);
-            break;
+    // Draw active messages
+    const currentTime = Date.now();
+    messages = messages.filter(msg => currentTime - msg.startTime < msg.duration);
+    
+    if (messages.length > 0) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(width/4, height/2 - 30, width/2, 60);
+        ctx.fillStyle = 'white';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        messages.forEach((msg, index) => {
+            ctx.fillText(msg.text, width/2, height/2 + (index * 25));
+        });
+        ctx.restore();
     }
 }
 
+// Modify gameLoop to ensure messages are drawn on top
 function gameLoop(timestamp) {
     // Calculate delta time
     const deltaTime = timestamp - lastTime;
@@ -684,4 +777,17 @@ function gameLoop(timestamp) {
 
     // Request next frame
     animationFrameId = requestAnimationFrame(gameLoop);
+}
+
+// Modify eatGhost function to actually remove ghosts
+function eatGhost() {
+    for (let i = 0; i < ghosts.length; i++) {
+        if (Math.floor(ghosts[i].pixelX/tileSize) === pacman.x && 
+            Math.floor(ghosts[i].pixelY/tileSize) === pacman.y) {
+            ghosts.splice(i, 1); // Remove the ghost from the array
+            showMessage("🍽️ Manuel eliminated!");
+            return true;
+        }
+    }
+    return false;
 }

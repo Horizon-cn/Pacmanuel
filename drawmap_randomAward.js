@@ -388,7 +388,7 @@ document.getElementById('startButton').addEventListener('click', function() {
 });
 
 
-//generats the random awards on the map
+// generates the random awards on the map
 function generateAwards() {
     awards = [];
     while (awards.length < 5) {
