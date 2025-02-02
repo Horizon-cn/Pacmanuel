@@ -21,7 +21,7 @@ var wallsToRemove = 10;
 var wallsToAdd = 11;
 var wallDensity = 0.85;
 
-var beannum = 1;
+var beannum = 10;
 var beanImage = new Image();
 beanImage.src = "./static/image/bean.png";
 
@@ -445,7 +445,7 @@ function movePacman(event) {
 function nextLevelHandler() {
     // Clear the canvas
     document.getElementById('levelwin').style.display = 'none';
-    document.getElementById('buff').style.display = 'block';
+    document.querySelector('.buff').style.display = 'block';
 
     // Call givebuff function to test
     givebuff();

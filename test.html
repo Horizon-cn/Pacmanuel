@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./static/style/hhy.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <title>Pac-Man Game</title>
     <style>
         body {
@@ -105,7 +105,31 @@
             justify-content: center;
             align-items: center;
         }
-        #nextlevel {
+        .buff{
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: url('./images/level_page/Buff.png');
+            background-size: cover;
+            background-position: center;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .levellose{
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: url('./images/level_page/level_Shade.png');
+            background-size: cover;
+            background-position: center;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #nextlevel, #reset {
             display: block;
             font-size: 20px;
             position: relative;
@@ -117,6 +141,31 @@
             height: 90px;
             top: 85%;
             left: 65%;
+        }
+        #buff1, #buff2 {
+            display: block;
+            font-size: 25px;
+            position: absolute;
+            z-index: 1001;
+            /* opacity: 0; */
+            background-color: transparent;
+            color: #392929;
+            text-align: center;
+            line-height: 35px;
+            cursor: pointer;
+            width: 230px;
+            height: 90px;
+            font-family: 'Press Start 2P', sans-serif; /* 设置字体 */
+            border: none; /* 移除边框 */
+            white-space: normal; /* 允许换行 */
+        }
+        #buff1 {
+            top: 87%;
+            left: 52%;
+        }
+        #buff2 {
+            top: 87%;
+            left: 78%;
         }
     </style>
 </head>
@@ -157,15 +206,12 @@
     </div>
 
     <div class="buff" id="buff" style="display: none;">
-        <img src="./static/style/PNG/BUFF.png" alt="BUFF Image" class="buff-image">
-        <button id="buff1"> </button>
-        <button id="buff2"> </button>
+        <button id="buff1"> Hp<br>+25 </button>
+        <button id="buff2"> Beannum<br>-2</button>
     </div>
 
     <div class="levellose" id="levellose" style="display: none;">
-        <img src="./static/style/PNG/LEVEL WIN.png" alt="Level Lose Image" class="levellose-image">
         <button id="reset"> </button>
-        <button id="endgamelose"> </button>
     </div>
 
 </body>
