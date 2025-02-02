@@ -42,7 +42,6 @@ var round = 1; // 定义回合计数
 var gpa = 1.0; // 定义初始得分
 
 var ghostSpeed = 2; // pixels per frame
-var normalghostSpeed = ghostSpeed;
 var ghostSize = tileSize; // size of ghost sprite
 var ghostHarm = 25; // damage caused by ghosts
 var normalghostHarm = ghostHarm;
@@ -59,7 +58,7 @@ var ghosts = [
 var beans = [];
 let gamePaused = false;
 
-var collisionCheckInterval = 80; // Check collision every 1000ms (1 second)
+var collisionCheckInterval = 60; // Check collision every 1000ms (1 second)
 var lastCollisionCheck = 0; // Track when we last checked for collision
 
 var buffPoints = [];
@@ -92,8 +91,9 @@ var buffEffects = [
         name: "Freeze Ghosts",
         image: buffImage1,
         apply: function() {
+            tempspeed  = ghostSpeed;
             ghostSpeed = 0; // Effectively freeze ghosts
-            setTimeout(() => { ghostSpeed = normalghostSpeed; }, 5000);
+            setTimeout(() => { ghostSpeed = tempspeed; }, 5000);
             showMessage("❄️ All ghosts frozen for 5 seconds!");
         }
     },
@@ -101,8 +101,9 @@ var buffEffects = [
         name: "Damage Reduction",
         image: buffImage2,
         apply: function() {
+            tempharm = ghostHarm;
             ghostHarm = 10;
-            setTimeout(() => { ghostHarm = normalghostHarm; }, 5000);
+            setTimeout(() => { ghostHarm = tempharm; }, 5000);
             showMessage(`🛡️ Ghost damage reduced to ${ghostHarm} for 5 seconds!`);
         }
     },
