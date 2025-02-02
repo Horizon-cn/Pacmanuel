@@ -21,7 +21,7 @@ var wallsToRemove = 10;
 var wallsToAdd = 11;
 var wallDensity = 0.85;
 
-var beannum = 10;
+var beannum = 1;
 var beanImage = new Image();
 beanImage.src = "./static/image/bean.png";
 
@@ -257,7 +257,6 @@ function drawBeans() {
 
 function updateBeanCounter() {
     const beanCounterElement = document.getElementById('bean-counter');
-    console.log("bean-counter:", document.getElementById('bean-counter'));
     if (beanCounterElement) {
         beanCounterElement.innerText = `剩余豆子: ${beans.length}`;
     }
