@@ -41,6 +41,7 @@ var buffs = [
 var round = 1; // 定义回合计数
 var gpa = 1.0; // 定义初始得分
 
+var missingGhosts = 0; // 统计缺少的幽灵个数
 var ghostSpeed = 2; // pixels per frame
 var ghostSize = tileSize; // size of ghost sprite
 var ghostHarm = 25; // damage caused by ghosts
@@ -152,6 +153,15 @@ function generateRandomMap(rows, cols, probabilityOfZero) {
     map[2][1] = 0;
 
     return map;
+}
+
+function generateRandomGhost() {
+    var x, y;
+    do {
+        x = Math.floor(Math.random() * (map[0].length - 2)) + 1;
+        y = Math.floor(Math.random() * (map.length - 2)) + 1;
+    } while (map[y][x] !== 0 || ghosts.some(ghost => ghost.x === x && ghost.y === y) || (x === pacman.x && y === pacman.y));
+    return { x: x, y: y, pixelX: x * tileSize, pixelY: y * tileSize, targetX: x, targetY: y};
 }
 
 var map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
@@ -279,6 +289,13 @@ function onBuffSelected() {
     map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
     generateBeans(beannum);
     generateBuffPoints();
+
+    for (var i = 0; i < missingGhosts; i++) {
+        var newGhost = generateRandomGhost();
+        ghosts.push(newGhost);
+    }
+    missingGhosts = 0; // 重置计数器
+
     round++; // 增加回合计数
     console.log("round: ", round);
     const roundCounterElement = document.getElementById('round-counter');
@@ -841,6 +858,7 @@ function eatGhost() {
         if (Math.floor(ghosts[i].pixelX/tileSize) === pacman.x && 
             Math.floor(ghosts[i].pixelY/tileSize) === pacman.y) {
             ghosts.splice(i, 1); // Remove the ghost from the array
+            missingGhosts++; // 增加缺少的幽灵个数
             showMessage("🍽️ Manuel eliminated!");
             return true;
         }
