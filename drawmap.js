@@ -12,11 +12,11 @@ pacmanImage.src = './static/image/bluetiger.png';
 var refreshInterval = 1000; // Refresh interval in milliseconds
 
 var hwallImage = new Image();
-hwallImage.src = './static/image/horizontal_wall_moss.png';
+hwallImage.src = './images/walls/floor_with_flower.png';
 var vwallImage = new Image();
-vwallImage.src = './static/image/vertical_wall_moss.png';
+vwallImage.src = './images/walls/sidewall_flower.png';
 var nwallImage = new Image();
-nwallImage.src = './static/image/horizontal_wall.png';
+nwallImage.src = './images/walls/sidewall_no_flower.png';
 var wallsToRemove = 10;
 var wallsToAdd = 11;
 var wallDensity = 0.85;
@@ -32,7 +32,10 @@ var ghostMoveInterval = 10; // Interval for ghost movement in milliseconds
 var level;
 var buff;
 var speed = 4, life = 3;
-var buffs = [{name: "Hp +25", effect: function(){if(hp != 100)hp += 25; updateHpCounter();}}, {name: "award +1", effect: function(){award += 2}}]  //need update
+var buffs = [
+    {name: "Hp +25", effect: function(){if(hp != 100)hp += 25; updateHpCounter();}}, 
+    {name: "Beannum need -2", effect: function(){beannum -= 2}}
+]  //need update
 
 
 var round = 1; // 定义回合计数
@@ -40,6 +43,8 @@ var gpa = 1.0; // 定义初始得分
 
 var ghostSpeed = 2; // pixels per frame
 var ghostSize = tileSize; // size of ghost sprite
+var ghostHarm = 25; // damage caused by ghosts
+var normalghostHarm = ghostHarm;
 
 var ghosts = [
     { x: 12, y: 1, pixelX: 12 * tileSize, pixelY: 1 * tileSize, targetX: 12, targetY: 1 },
@@ -53,8 +58,67 @@ var ghosts = [
 var beans = [];
 let gamePaused = false;
 
-var collisionCheckInterval = 150; // Check collision every 1000ms (1 second)
+var collisionCheckInterval = 60; // Check collision every 1000ms (1 second)
 var lastCollisionCheck = 0; // Track when we last checked for collision
+
+var buffPoints = [];
+var activeBuffs = new Set();
+var buffImage1 = new Image();
+buffImage1.src = 'images/award/award01Image.png'; // Damage reduction buff
+var buffImage2 = new Image();
+buffImage2.src = 'images/award/award02Image.png'; // Speed reduction buff
+var buffImage3 = new Image();
+buffImage3.src = 'images/award/award03Image.png'; // Freeze buff
+
+var originalGhostHarm = 25;
+var originalGhostMoveInterval = 10;
+var originalGhostSpeed = 2;
+
+var lastTime = 0;
+var animationFrameId;
+
+// Add these variables at the top with other variables
+var messages = [];
+var messageTimeout = 2000; // How long each message stays on screen (2 seconds)
+
+// Add this variable near the top with other variables
+var whether_attack = false;
+
+// Modify the buffPoint structure to include image and effect
+var buffPoints = [];
+var buffEffects = [
+    {
+        name: "Freeze Ghosts",
+        image: buffImage1,
+        apply: function() {
+            tempspeed  = ghostSpeed;
+            ghostSpeed = 0; // Effectively freeze ghosts
+            setTimeout(() => { ghostSpeed = tempspeed; }, 5000);
+            showMessage("❄️ All ghosts frozen for 5 seconds!");
+        }
+    },
+    {
+        name: "Damage Reduction",
+        image: buffImage2,
+        apply: function() {
+            tempharm = ghostHarm;
+            ghostHarm = 10;
+            setTimeout(() => { ghostHarm = tempharm; }, 5000);
+            showMessage(`🛡️ Ghost damage reduced to ${ghostHarm} for 5 seconds!`);
+        }
+    },
+    {
+        name: "Ghost Hunter",
+        image: buffImage3,
+        apply: function() {
+            whether_attack = true;
+            showMessage("👻 You can now eat ghosts for 5 seconds!");
+            setTimeout(() => { 
+                whether_attack = false;
+            }, 5000);
+        }
+    }
+];
 
 function generateRandomMap(rows, cols, probabilityOfZero) {
     var map = [];
@@ -113,12 +177,16 @@ function init() {
     drawPacman();
     drawGhosts();
     generateBeans();
-    drawBeans();
+    generateBuffPoints();
     
-    document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
+    document.getElementById('round-counter').innerText = `回合: ${round}`;
     window.addEventListener('keydown', movePacman);
     setInterval(refreshMap, refreshInterval);
     setInterval(moveGhosts, ghostMoveInterval);
+
+    // Start the game loop
+    lastTime = performance.now();
+    animationFrameId = requestAnimationFrame(gameLoop);
 }
 
 function drawMap() {
@@ -211,6 +279,7 @@ function onBuffSelected() {
     beannum += 5;
     map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
     generateBeans(beannum);
+    generateBuffPoints();
     round++; // 增加回合计数
     console.log("round: ", round);
     const roundCounterElement = document.getElementById('round-counter');
@@ -226,6 +295,7 @@ function onBuffSelected() {
     drawPacman();
     drawGhosts();
     drawBeans();
+    drawBuffPoints();
 }
 
 function updateHpCounter() {
@@ -249,6 +319,19 @@ function updateGpaCounter() {
 
     document.getElementById('gpa-counter').innerText = `GPA: ${gpa.toFixed(1)} / 4.0`;
 }
+
+function resetHandler() {
+    document.querySelector('.levellose').style.display = 'none'; // 隐藏 levellose 界面
+    document.getElementById('canvas').style.display = "block";
+    document.getElementById('bean-counter').style.display = "block";
+    document.getElementById('round-counter').style.display = "block";
+    document.getElementById('gpa-counter').style.display='block';
+    document.getElementById('hp-counter').style.display='block';
+    document.querySelector('.info').style.display = "block";
+    gamePaused = false; // 恢复游戏
+    resetGame();
+}
+
 
 function movePacman(event) {
 
@@ -286,24 +369,38 @@ function movePacman(event) {
         pacman.y = newY;
     }
     
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawMap();
-    drawGhosts();
-    
     // Check for collision with the ghosts using time interval
     var currentTime = Date.now();
     if (currentTime - lastCollisionCheck >= collisionCheckInterval) {
         lastCollisionCheck = currentTime;
         if (checkCollisionWithGhosts()) {
             lastCollisionCheck += 500;
-            hp -= 25;
-            updateHpCounter();
-            if (hp <= 0) {
-                // Delay the alert to ensure the ghost image overlaps with Pac-Man
-                setTimeout(function() {
-                    alert("Game Over! Pac-Man has been caught by Professor Manuel.");
-                    resetGame();
-                }, 100);
+            if (whether_attack) {
+                // Try to eat ghost if we have the buff
+                eatGhost();
+            } else {
+                // Normal collision damage
+                hp -= ghostHarm;
+                showMessage(`👻 Manuel caught you! HP - ${ghostHarm}`);
+                updateHpCounter();
+                if (hp <= 0) {
+                    // Delay the alert to ensure the ghost image overlaps with Pac-Man
+                    setTimeout(function() {
+                        gamePaused = true; // 暂停游戏
+                        document.getElementById('canvas').style.display = "none";
+                        document.getElementById('bean-counter').style.display = "none";
+                        document.getElementById('round-counter').style.display = "none";
+                        document.getElementById('gpa-counter').style.display='none';
+                        document.getElementById('hp-counter').style.display='none';
+                        document.querySelector('.info').style.display = "none";
+
+                        document.querySelector('.levellose').style.display = 'block'; // 显示 levellose 界面
+                        document.getElementById('reset').removeEventListener('click', resetHandler);
+                                // Add event listener to the next level button
+
+                        document.getElementById('reset').addEventListener('click', resetHandler);
+                        }, 100);
+                }
             }
         }
     } else {
@@ -333,13 +430,21 @@ function movePacman(event) {
 
             document.getElementById('nextlevel').addEventListener('click', nextLevelHandler);
         }
-
-        // Redraw the map, Pac-Man, and ghosts
-        drawMap();
-        drawPacman();
-        drawGhosts();
-        drawBeans();
     }
+    
+    // Check for buff collection
+    buffPoints.forEach(function(point) {
+        if (point.active && !point.collected && point.x === pacman.x && point.y === pacman.y) {
+            // Randomly select a buff
+            const randomBuff = buffEffects[Math.floor(Math.random() * buffEffects.length)];
+            point.collected = true;
+            point.effect = randomBuff.apply;
+            point.image = randomBuff.image;
+            
+            // Apply the buff effect
+            point.effect();
+        }
+    });
 }
 
 function nextLevelHandler() {
@@ -416,27 +521,39 @@ function moveGhosts() {
         if (dy !== 0) ghost.pixelY += Math.sign(dy) * ghostSpeed;
     });
 
-    // Redraw everything
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawMap();
-    drawPacman();
-    drawGhosts();
-    drawBeans();
-
     // Modified collision check using time interval
     if (shouldCheckCollision) {
         lastCollisionCheck = currentTime;
         if (checkCollisionWithGhosts()) {
             lastCollisionCheck += 500;
-            hp -= 25;
-            updateHpCounter();
-            if (hp <= 0) {
-                setTimeout(function() {
-                    alert("Game Over! Pac-Man has been caught by Professor Manuel.");
-                    resetGame();
-                }, 100);
+            if (whether_attack) {
+                // Try to eat ghost if we have the buff
+                eatGhost();
+            } else {
+                // Normal collision damage
+                hp -= ghostHarm;
+                showMessage(`👻 Manuel caught you! HP - ${ghostHarm}`);
+                updateHpCounter();
+                if (hp <= 0) {
+                    setTimeout(function() {
+                        gamePaused = true; // 暂停游戏
+                        document.getElementById('canvas').style.display = "none";
+                        document.getElementById('bean-counter').style.display = "none";
+                        document.getElementById('round-counter').style.display = "none";
+                        document.getElementById('gpa-counter').style.display='none';
+                        document.getElementById('hp-counter').style.display='none';
+                        document.querySelector('.info').style.display = "none";
+        
+                        document.querySelector('.levellose').style.display = 'block'; // 显示 levellose 界面
+                        document.getElementById('reset').removeEventListener('click', resetHandler);
+                                // Add event listener to the next level button
+        
+                        document.getElementById('reset').addEventListener('click', resetHandler);
+        
+                        }, 100);
+                }
             }
-        }      
+        }
     }
 }
 
@@ -464,6 +581,15 @@ function checkCollisionWithGhosts() {
     });
 }
 
+// Add this new function to handle messages
+function showMessage(text, duration = 2000) {
+    messages.push({
+        text: text,
+        startTime: Date.now(),
+        duration: duration
+    });
+}
+
 // Add this helper function
 function isTileEmpty(row, col) {
     // Check if tile has no wall
@@ -483,6 +609,13 @@ function isTileEmpty(row, col) {
     // Check if any bean is there
     for (var i = 0; i < beans.length; i++) {
         if (beans[i].x === col && beans[i].y === row) {
+            return false;
+        }
+    }
+    
+    // Check if any buff is there
+    for (var i = 0; i < buffPoints.length; i++) {
+        if (buffPoints[i].active && buffPoints[i].x === col && buffPoints[i].y === row) {
             return false;
         }
     }
@@ -529,16 +662,14 @@ function refreshMap() {
         map[pos.row][pos.col] = 1;
         emptyTiles.splice(index, 1);
     }
-
-    // Redraw everything
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawMap();
-    drawPacman();
-    drawGhosts();
-    drawBeans();
 }
 
 function resetGame() {
+    // Cancel existing animation frame if any
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+
     pacman = { x: 1, y: 1 }; // Reset Pac-Man's position
     ghosts = [
         { x: 12, y: 1, pixelX: 12 * tileSize, pixelY: 1 * tileSize, targetX: 12, targetY: 1 },
@@ -556,15 +687,26 @@ function resetGame() {
     ghostSpeed = 2;
     round = 1;
     lastCollisionCheck = 0;
+    buffPoints = [];
+    activeBuffs.clear();
+    generateBuffPoints();
+    ghostHarm = originalGhostHarm;
+    ghostMoveInterval = originalGhostMoveInterval;
+    ghostSpeed = originalGhostSpeed;
+    whether_attack = false;
     document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
 
     drawMap();
     drawPacman();
     drawGhosts();
     generateBeans(beannum);
-    drawBeans();
+    drawBuffPoints();
     updateHpCounter();
     updateGpaCounter();
+
+    // Restart game loop
+    lastTime = performance.now();
+    animationFrameId = requestAnimationFrame(gameLoop);
 }
 
 // Start the game when the "Start" button is clicked
@@ -595,4 +737,105 @@ async function givebuff() {
     var buffIndex = await chooseBuff();
     buffs[buffIndex].effect();
     onBuffSelected(); // 选择 buff 后调用刷新关卡逻辑
+}
+
+// Replace generateBuffPoints function
+function generateBuffPoints() {
+    buffPoints = [];
+    while (buffPoints.length < 5) {
+        var x = Math.floor(Math.random() * (map[0].length - 2)) + 1;
+        var y = Math.floor(Math.random() * (map.length - 2)) + 1;
+        if (map[y][x] === 0 && 
+            !buffPoints.some(point => point.x === x && point.y === y) &&
+            !beans.some(bean => bean.x === x && bean.y === y)) {
+            buffPoints.push({ 
+                x: x, 
+                y: y,
+                active: true,
+                collected: false,
+                effect: null,
+                image: null
+            });
+        }
+    }
+}
+
+// Modify the drawBuffPoints function to include message drawing
+function drawBuffPoints() {
+    // Draw buff points
+    buffPoints.forEach(function(point) {
+        if (point.active) {
+            if (point.collected && point.image) {
+                ctx.drawImage(point.image, 
+                    point.x * tileSize, 
+                    point.y * tileSize, 
+                    tileSize, 
+                    tileSize
+                );
+            } else {
+                // Draw uncollected buff marker
+                ctx.fillStyle = 'gold';
+                ctx.beginPath();
+                ctx.arc(
+                    point.x * tileSize + tileSize/2,
+                    point.y * tileSize + tileSize/2,
+                    tileSize/4,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
+        }
+    });
+
+    // Draw active messages
+    const currentTime = Date.now();
+    messages = messages.filter(msg => currentTime - msg.startTime < msg.duration);
+    
+    if (messages.length > 0) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(width/4, height/2 - 30, width/2, 60);
+        ctx.fillStyle = 'white';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        messages.forEach((msg, index) => {
+            ctx.fillText(msg.text, width/2, height/2 + (index * 25));
+        });
+        ctx.restore();
+    }
+}
+
+// Modify gameLoop to ensure messages are drawn on top
+function gameLoop(timestamp) {
+    // Calculate delta time
+    const deltaTime = timestamp - lastTime;
+    lastTime = timestamp;
+
+    // Clear the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw everything
+    drawMap();
+    drawPacman();
+    drawGhosts();
+    drawBeans();
+    drawBuffPoints();
+
+    // Request next frame
+    animationFrameId = requestAnimationFrame(gameLoop);
+}
+
+// Modify eatGhost function to actually remove ghosts
+function eatGhost() {
+    for (let i = 0; i < ghosts.length; i++) {
+        if (Math.floor(ghosts[i].pixelX/tileSize) === pacman.x && 
+            Math.floor(ghosts[i].pixelY/tileSize) === pacman.y) {
+            ghosts.splice(i, 1); // Remove the ghost from the array
+            showMessage("🍽️ Manuel eliminated!");
+            return true;
+        }
+    }
+    return false;
 }
