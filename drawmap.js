@@ -91,8 +91,9 @@ var buffEffects = [
         name: "Freeze Ghosts",
         image: buffImage1,
         apply: function() {
+            if(ghostSpeed != 0)tempspeed = ghostSpeed;
             ghostSpeed = 0; // Effectively freeze ghosts
-            setTimeout(() => { ghostSpeed = originalGhostSpeed; }, 5000);
+            setTimeout(() => { ghostSpeed = tempspeed; }, 5000);
             showMessage("❄️ All ghosts frozen for 5 seconds!");
         }
     },
