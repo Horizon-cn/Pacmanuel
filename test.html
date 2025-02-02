@@ -19,10 +19,33 @@
             display: none;
             border: 2px solid #000000;
         }
+        .startpage {
+            position: relative;
+            justify-content: center;
+            width: 960px;
+            height: 640px;
+            object-fit: contain; /* 调整图像以适应容器 */
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .start-image {
+            position: absolute;
+            justify-content: center;
+            width: 960px;
+            height: 640px;
+            top: 0;
+            left: 0;
+            object-fit: contain; /* 调整图像以适应容器 */
+            align-items: center;
+            margin-bottom: 20px;
+        }
         #startButton {
             display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
+            position: absolute;
+            width: 180px;
+            height: 35px;
+            top: 390px;
+            left: 390px;
             font-size: 20px;
             position: relative;
             z-index: 1001;
@@ -123,7 +146,8 @@
             document.getElementById('bean-counter').style.display = 'block';
             document.getElementById('round-counter').style.display = 'block';
             document.getElementById('gpa-counter').style.display = 'block';
-            this.style.display = 'none';
+            document.getElementById('startButton').style.display = 'none';
+            document.querySelector('.start-image').style.display = 'none';
         });
     </script>
 
@@ -138,6 +162,12 @@
         <img src="./static/style/PNG/BUFF.png" alt="BUFF Image" class="buff-image">
         <button id="buff1"> </button>
         <button id="buff2"> </button>
+    </div>
+
+    <div class="levellose" id="levellose" style="display: none;">
+        <img src="./static/style/PNG/LEVEL WIN.png" alt="Level Lose Image" class="levellose-image">
+        <button id="reset"> </button>
+        <button id="endgamelose"> </button>
     </div>
 
 </body>

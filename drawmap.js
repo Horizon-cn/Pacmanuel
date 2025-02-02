@@ -32,7 +32,10 @@ var ghostMoveInterval = 10; // Interval for ghost movement in milliseconds
 var level;
 var buff;
 var speed = 4, life = 3;
-var buffs = [{name: "Hp +25", effect: function(){if(hp != 100)hp += 25; updateHpCounter();}}, {name: "award +1", effect: function(){award += 2}}]  //need update
+var buffs = [
+    {name: "Hp +25", effect: function(){if(hp != 100)hp += 25; updateHpCounter();}}, 
+    {name: "Beannum need -2", effect: function(){beannum -= 2}}
+]  //need update
 
 
 var round = 1; // 定义回合计数
@@ -316,6 +319,19 @@ function updateGpaCounter() {
     document.getElementById('gpa-counter').innerText = `GPA: ${gpa.toFixed(1)} / 4.0`;
 }
 
+function resetHandler() {
+    document.querySelector('.levellose').style.display = 'none'; // 隐藏 levellose 界面
+    document.getElementById('canvas').style.display = "block";
+    document.getElementById('bean-counter').style.display = "block";
+    document.getElementById('round-counter').style.display = "block";
+    document.getElementById('gpa-counter').style.display='block';
+    document.getElementById('hp-counter').style.display='block';
+    document.querySelector('.info').style.display = "block";
+    gamePaused = false; // 恢复游戏
+    resetGame();
+}
+
+
 function movePacman(event) {
 
     if (gamePaused) return; // 如果游戏暂停，则不执行移动逻辑
@@ -369,9 +385,20 @@ function movePacman(event) {
                 if (hp <= 0) {
                     // Delay the alert to ensure the ghost image overlaps with Pac-Man
                     setTimeout(function() {
-                        alert("Game Over! Pac-Man has been caught by Professor Manuel.");
-                        resetGame();
-                    }, 100);
+                        gamePaused = true; // 暂停游戏
+                        document.getElementById('canvas').style.display = "none";
+                        document.getElementById('bean-counter').style.display = "none";
+                        document.getElementById('round-counter').style.display = "none";
+                        document.getElementById('gpa-counter').style.display='none';
+                        document.getElementById('hp-counter').style.display='none';
+                        document.querySelector('.info').style.display = "none";
+
+                        document.querySelector('.levellose').style.display = 'block'; // 显示 levellose 界面
+                        document.getElementById('reset').removeEventListener('click', resetHandler);
+                                // Add event listener to the next level button
+
+                        document.getElementById('reset').addEventListener('click', resetHandler);
+                        }, 100);
                 }
             }
         }
@@ -498,11 +525,22 @@ function moveGhosts() {
                 showMessage(`👻 Manuel caught you! HP - ${ghostHarm}`);
                 updateHpCounter();
                 if (hp <= 0) {
-                    // Delay the alert to ensure the ghost image overlaps with Pac-Man
                     setTimeout(function() {
-                        alert("Game Over! Pac-Man has been caught by Professor Manuel.");
-                        resetGame();
-                    }, 100);
+                        gamePaused = true; // 暂停游戏
+                        document.getElementById('canvas').style.display = "none";
+                        document.getElementById('bean-counter').style.display = "none";
+                        document.getElementById('round-counter').style.display = "none";
+                        document.getElementById('gpa-counter').style.display='none';
+                        document.getElementById('hp-counter').style.display='none';
+                        document.querySelector('.info').style.display = "none";
+        
+                        document.querySelector('.levellose').style.display = 'block'; // 显示 levellose 界面
+                        document.getElementById('reset').removeEventListener('click', resetHandler);
+                                // Add event listener to the next level button
+        
+                        document.getElementById('reset').addEventListener('click', resetHandler);
+        
+                        }, 100);
                 }
             }
         }
@@ -663,8 +701,14 @@ function resetGame() {
 
 // Start the game when the "Start" button is clicked
 document.getElementById('startButton').addEventListener('click', function() {
-    document.getElementById('startButton').style.display = 'none';
     document.getElementById('canvas').style.display = 'block';
+    document.querySelector('.info').style.display = 'block';
+    document.getElementById('hp-counter').style.display = 'block';
+    document.getElementById('bean-counter').style.display = 'block';
+    document.getElementById('round-counter').style.display = 'block';
+    document.getElementById('gpa-counter').style.display = 'block';
+    document.getElementById('startButton').style.display = 'none';
+    document.querySelector('.start-image').style.display = 'none';
     init();
 });
 
