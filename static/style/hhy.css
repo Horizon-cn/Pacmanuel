@@ -5,6 +5,10 @@
     margin: 0 auto;
 }
 
+/* Apply the PixelifySans.ttf font to all text */
+body, button, div, p, h1, h2, h3, h4, h5, h6 {
+    font-family: 'Pixelify Sans', sans-serif;
+}
 
 .levelwin-image {
     z-index: 10;
