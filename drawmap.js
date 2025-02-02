@@ -198,7 +198,7 @@ function drawMap() {
 
             if (tile === 0) {
                 // Empty space
-                ctx.fillStyle = 'white';
+                ctx.fillStyle = '#FFFFF0';
                 ctx.fillRect(x, y, tileSize, tileSize);
             } else if (tile === 1) {
                 // Draw walls based on position
@@ -380,6 +380,7 @@ function movePacman(event) {
                 eatGhost();
             } else {
                 // Normal collision damage
+                playGhostSound();
                 hp -= ghostHarm;
                 showMessage(`👻 Manuel caught you! HP - ${ghostHarm}`);
                 updateHpCounter();
@@ -461,6 +462,11 @@ function playCoinSound() {
     audio.play();
 }
 
+function playGhostSound() {
+    var audio = document.getElementById('ghostSound');
+    audio.play();
+}
+
 function moveGhosts() {
     // Only check collision if enough time has passed
     if (gamePaused) return; // 如果游戏暂停，则不执行移动逻辑
@@ -531,6 +537,7 @@ function moveGhosts() {
                 eatGhost();
             } else {
                 // Normal collision damage
+                playGhostSound();
                 hp -= ghostHarm;
                 showMessage(`👻 Manuel caught you! HP - ${ghostHarm}`);
                 updateHpCounter();
