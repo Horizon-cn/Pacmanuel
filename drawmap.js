@@ -21,7 +21,7 @@ var wallsToRemove = 10;
 var wallsToAdd = 11;
 var wallDensity = 0.85;
 
-var beannum = 10;
+var beannum = 1;
 var beanImage = new Image();
 beanImage.src = "./static/image/bean.png";
 
@@ -59,7 +59,7 @@ var ghosts = [
 var beans = [];
 let gamePaused = false;
 
-var collisionCheckInterval = 60; // Check collision every 1000ms (1 second)
+var collisionCheckInterval = 40; // Check collision every 1000ms (1 second)
 var lastCollisionCheck = 0; // Track when we last checked for collision
 
 var buffPoints = [];
