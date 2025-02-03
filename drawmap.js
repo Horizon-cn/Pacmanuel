@@ -188,7 +188,7 @@ function init() {
     generateBeans();
     generateBuffPoints();
     
-    document.getElementById('round-counter').innerText = `回合: ${round}`;
+    document.getElementById('round-counter').innerText = `Level: ${round}`;
     window.addEventListener('keydown', movePacman);
     setInterval(refreshMap, refreshInterval);
     setInterval(moveGhosts, ghostMoveInterval);
@@ -267,7 +267,7 @@ function drawBeans() {
 function updateBeanCounter() {
     const beanCounterElement = document.getElementById('bean-counter');
     if (beanCounterElement) {
-        beanCounterElement.innerText = `剩余豆子: ${beans.length}`;
+        beanCounterElement.innerText = `Beans left: ${beans.length}`;
     }
 }
 
@@ -299,7 +299,7 @@ function onBuffSelected() {
     console.log("round: ", round);
     const roundCounterElement = document.getElementById('round-counter');
     if (roundCounterElement) {
-        roundCounterElement.innerText = `回合: ${round}`; // 更新显示的回合计数
+        roundCounterElement.innerText = `Level: ${round}`; // 更新显示的回合计数
     }
     // 恢复游戏
     gamePaused = false;
@@ -718,7 +718,7 @@ function resetGame() {
     ghostMoveInterval = originalGhostMoveInterval;
     ghostSpeed = originalGhostSpeed;
     whether_attack = false;
-    document.getElementById('round-counter').innerText = `回合: ${round}`; // 更新显示的回合计数
+    document.getElementById('round-counter').innerText = `Level: ${round}`; // 更新显示的回合计数
 
     drawMap();
     drawPacman();
@@ -821,7 +821,7 @@ function drawBuffPoints() {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(width/4, height/2 - 30, width/2, 60);
         ctx.fillStyle = 'white';
-        ctx.font = '20px Arial';
+        ctx.font = '20px "Pixelify Sans", sans-serif';  // Changed font to Pixelify Sans
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         messages.forEach((msg, index) => {
