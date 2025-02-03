@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./static/style/hhy.css">
-    <link href="https://fonts.cdnfonts.com/css/pixelify-sans" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <title>Pac-Man Game</title>
     <style>
         body {
@@ -94,6 +94,99 @@
             justify-content: center;
             align-items: center;
         }
+        .levelwin{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-image: url('./images/victory_page/level_noShade.png');
+            background-size: cover;
+            background-position: center;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .buff{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-image: url('./images/victory_page/Buff.png');
+            background-size: cover;
+            background-position: center;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .levellose{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-image: url('./images/failure_page/failure_page.png');
+            background-size: cover;
+            background-position: center;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #nextlevel{
+            display: block;
+            font-size: 20px;
+            position: absolute;
+            z-index: 1001;
+            opacity: 0;
+            background-color: black;
+            cursor: pointer;
+            width: 230px;
+            height: 90px;
+            top: 80%;
+            left: 66%;
+        }
+        #reset{
+            display: block;
+            font-size: 20px;
+            position: relative;
+            z-index: 1001;
+            opacity: 0;
+            background-color: black;
+            cursor: pointer;
+            width: 380px;
+            height: 90px;
+            top: 82%;
+            left: 15%;
+        }
+        #buff1, #buff2 {
+            display: block;
+            font-size: 25px;
+            position: absolute;
+            z-index: 1001;
+            /* opacity: 0; */
+            background-color: transparent;
+            color: #392929;
+            text-align: center;
+            line-height: 35px;
+            cursor: pointer;
+            width: 230px;
+            height: 90px;
+            font-family: 'Press Start 2P', sans-serif; /* 设置字体 */
+            border: none; /* 移除边框 */
+            white-space: normal; /* 允许换行 */
+        }
+        #buff1 {
+            top: 83%;
+            left: 52%;
+        }
+        #buff2 {
+            top: 83%;
+            left: 78%;
+        }
     </style>
 </head>
 <body>
@@ -106,14 +199,18 @@
     <script src="drawmap.js"></script>
 
     <div class="info">
-        <p>Control the blue tiger with wasd or ↑↓←→</p>
-        <p>Goal: consume all the beans and avoid being caught by Professor Manuel!</p>
+        <p>使用方向键操控蓝虎</p>
+        <p>吃掉所有豆子，躲避Manuel</p>
     </div>
 
     <div id="hp-counter">HP: 100</div> <!-- 添加回合计数显示 -->
-    <div id="bean-counter">Beans left: 0</div> <!-- 添加剩余豆子计数显示 -->
-    <div id="round-counter">Level: 1</div> <!-- 添加回合计数显示 -->
+    <div id="bean-counter">剩余豆子: 0</div> <!-- 添加剩余豆子计数显示 -->
+    <div id="round-counter">回合: 1</div> <!-- 添加回合计数显示 -->
     <div id="gpa-counter">GPA: 1.0 / 4.0</div> <!-- 添加得分显示 -->
+
+    <audio id="coinSound" src="static/sound/coin.mp3" preload="auto"></audio>
+    <audio id="ghostSound" src="static/sound/ghost.mp3" preload="auto"></audio>
+    <audio id="winSound" src="static/sound/win.wav" preload="auto"></audio>
 
     <script>
         document.getElementById('startButton').addEventListener('click', function() {
@@ -129,21 +226,16 @@
 
     <!-- 合并 hhytest.html 的内容 -->
     <div class="levelwin" id="levelwin" style="display: none;">
-        <img src="./static/style/PNG/LEVEL WIN.png" alt="Level Win Image" class="levelwin-image">
         <button id="nextlevel"> </button>
-        <button id="endgame"> </button>
     </div>
 
     <div class="buff" id="buff" style="display: none;">
-        <img src="./static/style/PNG/BUFF.png" alt="BUFF Image" class="buff-image">
-        <button id="buff1"> </button>
-        <button id="buff2"> </button>
+        <button id="buff1"> Hp<br>+25 </button>
+        <button id="buff2"> Beannum<br>-2</button>
     </div>
 
     <div class="levellose" id="levellose" style="display: none;">
-        <img src="./static/style/PNG/LEVEL WIN.png" alt="Level Lose Image" class="levellose-image">
         <button id="reset"> </button>
-        <button id="endgamelose"> </button>
     </div>
 
 </body>

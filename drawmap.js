@@ -21,7 +21,7 @@ var wallsToRemove = 10;
 var wallsToAdd = 11;
 var wallDensity = 0.85;
 
-var beannum = 10;
+var beannum = 1;
 var beanImage = new Image();
 beanImage.src = "./static/image/bean.png";
 
@@ -41,6 +41,7 @@ var buffs = [
 var round = 1; // 定义回合计数
 var gpa = 1.0; // 定义初始得分
 
+var missingGhosts = 0; // 统计缺少的幽灵个数
 var ghostSpeed = 2; // pixels per frame
 var ghostSize = tileSize; // size of ghost sprite
 var ghostHarm = 25; // damage caused by ghosts
@@ -58,7 +59,7 @@ var ghosts = [
 var beans = [];
 let gamePaused = false;
 
-var collisionCheckInterval = 60; // Check collision every 1000ms (1 second)
+var collisionCheckInterval = 40; // Check collision every 1000ms (1 second)
 var lastCollisionCheck = 0; // Track when we last checked for collision
 
 var buffPoints = [];
@@ -91,8 +92,9 @@ var buffEffects = [
         name: "Freeze Ghosts",
         image: buffImage1,
         apply: function() {
+            if(ghostSpeed != 0)tempspeed = ghostSpeed;
             ghostSpeed = 0; // Effectively freeze ghosts
-            setTimeout(() => { ghostSpeed = originalGhostSpeed; }, 5000);
+            setTimeout(() => { ghostSpeed = tempspeed; }, 5000);
             showMessage("❄️ All ghosts frozen for 5 seconds!");
         }
     },
@@ -153,6 +155,15 @@ function generateRandomMap(rows, cols, probabilityOfZero) {
     return map;
 }
 
+function generateRandomGhost() {
+    var x, y;
+    do {
+        x = Math.floor(Math.random() * (map[0].length - 2)) + 1;
+        y = Math.floor(Math.random() * (map.length - 2)) + 1;
+    } while (map[y][x] !== 0 || ghosts.some(ghost => ghost.x === x && ghost.y === y) || (x === pacman.x && y === pacman.y));
+    return { x: x, y: y, pixelX: x * tileSize, pixelY: y * tileSize, targetX: x, targetY: y};
+}
+
 var map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
 
 function checkDisplayStatus(elementId) {
@@ -196,7 +207,7 @@ function drawMap() {
 
             if (tile === 0) {
                 // Empty space
-                ctx.fillStyle = 'white';
+                ctx.fillStyle = '#FFFFF0';
                 ctx.fillRect(x, y, tileSize, tileSize);
             } else if (tile === 1) {
                 // Draw walls based on position
@@ -255,7 +266,6 @@ function drawBeans() {
 
 function updateBeanCounter() {
     const beanCounterElement = document.getElementById('bean-counter');
-    console.log("bean-counter:", document.getElementById('bean-counter'));
     if (beanCounterElement) {
         beanCounterElement.innerText = `Beans left: ${beans.length}`;
     }
@@ -278,6 +288,13 @@ function onBuffSelected() {
     map = generateRandomMap(height / tileSize, width / tileSize, wallDensity);
     generateBeans(beannum);
     generateBuffPoints();
+
+    for (var i = 0; i < missingGhosts; i++) {
+        var newGhost = generateRandomGhost();
+        ghosts.push(newGhost);
+    }
+    missingGhosts = 0; // 重置计数器
+
     round++; // 增加回合计数
     console.log("round: ", round);
     const roundCounterElement = document.getElementById('round-counter');
@@ -378,6 +395,7 @@ function movePacman(event) {
                 eatGhost();
             } else {
                 // Normal collision damage
+                playGhostSound();
                 hp -= ghostHarm;
                 showMessage(`👻 Manuel caught you! HP - ${ghostHarm}`);
                 updateHpCounter();
@@ -403,7 +421,11 @@ function movePacman(event) {
         }
     } else {
         beans = beans.filter(function(bean) {
-            return !(bean.x === pacman.x && bean.y === pacman.y);
+            if (bean.x === pacman.x && bean.y === pacman.y) {
+                playCoinSound(); // 播放音频
+                return false;
+            }
+            return true;
         });
         updateBeanCounter();
         updateGpaCounter();
@@ -411,6 +433,8 @@ function movePacman(event) {
         // Next level difficulty
         if (beans.length === 0) {
             gamePaused = true; // 暂停游戏
+            var audio = document.getElementById('winSound');
+            audio.play();
             document.getElementById('canvas').style.display = "none";
             document.getElementById('bean-counter').style.display = "none";
             document.getElementById('round-counter').style.display = "none";
@@ -444,10 +468,20 @@ function movePacman(event) {
 function nextLevelHandler() {
     // Clear the canvas
     document.getElementById('levelwin').style.display = 'none';
-    document.getElementById('buff').style.display = 'block';
+    document.querySelector('.buff').style.display = 'block';
 
     // Call givebuff function to test
     givebuff();
+}
+
+function playCoinSound() {
+    var audio = document.getElementById('coinSound');
+    audio.play();
+}
+
+function playGhostSound() {
+    var audio = document.getElementById('ghostSound');
+    audio.play();
 }
 
 function moveGhosts() {
@@ -520,6 +554,7 @@ function moveGhosts() {
                 eatGhost();
             } else {
                 // Normal collision damage
+                playGhostSound();
                 hp -= ghostHarm;
                 showMessage(`👻 Manuel caught you! HP - ${ghostHarm}`);
                 updateHpCounter();
@@ -822,6 +857,7 @@ function eatGhost() {
         if (Math.floor(ghosts[i].pixelX/tileSize) === pacman.x && 
             Math.floor(ghosts[i].pixelY/tileSize) === pacman.y) {
             ghosts.splice(i, 1); // Remove the ghost from the array
+            missingGhosts++; // 增加缺少的幽灵个数
             showMessage("🍽️ Manuel eliminated!");
             return true;
         }
