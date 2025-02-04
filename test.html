@@ -20,11 +20,13 @@
             margin: 0;
             position: relative; /* 添加相对定位 */
             background: url('./images/backimage/backimage.png') no-repeat center bottom;
-            background-size: 105%;
+            background-size: cover;
+            background-position: center;
         }
         #canvas {
             display: none;
             border: 2px solid #000000;
+            margin-top: 55px; /* 向下移动canvas */
         }
         #startButton {
             display: block;
@@ -42,8 +44,9 @@
         .info {
             display: none;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 0px;
             color: #FFFFE0;
+            font-size: 24px;
         }
         .title {
             display: none; /* Hide the original title */
