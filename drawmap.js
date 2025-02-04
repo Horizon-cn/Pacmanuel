@@ -199,7 +199,7 @@ function init() {
     generateBeans();
     generateBuffPoints();
     
-    document.getElementById('round-counter').innerText = `Level: ${round}`;
+    document.getElementById('round-counter').innerText = `LEVEL: ${round}`;
     window.addEventListener('keydown', movePacman);
     setInterval(refreshMap, refreshInterval);
     setInterval(moveGhosts, ghostMoveInterval);
@@ -312,7 +312,7 @@ function onBuffSelected() {
     console.log("round: ", round);
     const roundCounterElement = document.getElementById('round-counter');
     if (roundCounterElement) {
-        roundCounterElement.innerText = `Level: ${round}`; // 更新显示的回合计数
+        roundCounterElement.innerText = `LEVEL: ${round}`; // 更新显示的回合计数
     }
     // 恢复游戏
     gamePaused = false;
@@ -731,7 +731,7 @@ function resetGame() {
     ghostMoveInterval = originalGhostMoveInterval;
     ghostSpeed = originalGhostSpeed;
     whether_attack = false;
-    document.getElementById('round-counter').innerText = `Level: ${round}`; // 更新显示的回合计数
+    document.getElementById('round-counter').innerText = `LEVEL: ${round}`; // 更新显示的回合计数
 
     drawMap();
     drawPacman();
