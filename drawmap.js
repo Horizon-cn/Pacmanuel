@@ -206,19 +206,16 @@ function drawMap() {
             var y = row * tileSize;
 
             if (tile === 0) {
-                // Empty space
-                ctx.fillStyle = '#FFFFF0';
+                // Empty space - semi-transparent white
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 ctx.fillRect(x, y, tileSize, tileSize);
             } else if (tile === 1) {
-                // Draw walls based on position
+                // Draw walls with slightly higher opacity
                 if (row === 0 || row === map.length - 1) {
-                    // Horizontal boundary walls
                     ctx.drawImage(hwallImage, x, y, tileSize, tileSize);
                 } else if (col === 0 || col === map[row].length - 1) {
-                    // Vertical boundary walls
                     ctx.drawImage(vwallImage, x, y, tileSize, tileSize);
                 } else {
-                    // Inner walls
                     ctx.drawImage(nwallImage, x, y, tileSize, tileSize);
                 }
             }
@@ -821,7 +818,7 @@ function drawBuffPoints() {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(width/4, height/2 - 30, width/2, 60);
         ctx.fillStyle = 'white';
-        ctx.font = '20px "Pixelify Sans", sans-serif';  // Changed font to Pixelify Sans
+        ctx.font = '20px "Pixelify Sans", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         messages.forEach((msg, index) => {

@@ -15,14 +15,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: center; /* Change from center to flex-start */
             height: 100vh;
             margin: 0;
             position: relative; /* 添加相对定位 */
+            background-image: url('./images/backimage/backimage.png');
+            background-size: cover;
+            background-position: center;
         }
         #canvas {
             display: none;
             border: 2px solid #000000;
+            margin-top: 0; /* Add this to align to top */
         }
         #startButton {
             display: block;
