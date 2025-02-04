@@ -23,7 +23,7 @@ var wallDensity = 0.85;
 
 var beannum = 1;
 var beanImage = new Image();
-beanImage.src = "./static/image/bean.png";
+beanImage.src = "./images/bean/bigBean.png";
 
 var ghostImage = new Image();
 ghostImage.src = './static/image/manuel.png'; // The ghost image named 'ghost.png'
@@ -64,12 +64,16 @@ var lastCollisionCheck = 0; // Track when we last checked for collision
 
 var buffPoints = [];
 var activeBuffs = new Set();
+var unknownbuffImage = new Image();
+unknownbuffImage.src = 'images/award/unknown_buff.png'; // Unknown buff image
 var buffImage1 = new Image();
 buffImage1.src = 'images/award/award01Image.png'; // Damage reduction buff
 var buffImage2 = new Image();
 buffImage2.src = 'images/award/award02Image.png'; // Speed reduction buff
 var buffImage3 = new Image();
 buffImage3.src = 'images/award/award03Image.png'; // Freeze buff
+var ice = new Image();
+ice.src = './images/award/frozen.png'; // Freeze animation
 
 var originalGhostHarm = 25;
 var originalGhostMoveInterval = 10;
@@ -85,6 +89,9 @@ var messageTimeout = 2000; // How long each message stays on screen (2 seconds)
 // Add this variable near the top with other variables
 var whether_attack = false;
 
+// Add near other variable declarations
+var ghostsFrozen = false; // Track frozen state
+
 // Modify the buffPoint structure to include image and effect
 var buffPoints = [];
 var buffEffects = [
@@ -92,9 +99,13 @@ var buffEffects = [
         name: "Freeze Ghosts",
         image: buffImage1,
         apply: function() {
-            if(ghostSpeed != 0)tempspeed = ghostSpeed;
-            ghostSpeed = 0; // Effectively freeze ghosts
-            setTimeout(() => { ghostSpeed = tempspeed; }, 5000);
+            if(ghostSpeed != 0) tempspeed = ghostSpeed;
+            ghostSpeed = 0;
+            ghostsFrozen = true; // Set frozen state
+            setTimeout(() => { 
+                ghostSpeed = tempspeed;
+                ghostsFrozen = false; // Reset frozen state
+            }, 5000);
             showMessage("❄️ All ghosts frozen for 5 seconds!");
         }
     },
@@ -231,11 +242,16 @@ function drawPacman() {
 
 function drawGhosts() {
     ghosts.forEach(function(ghost) {
+        // Draw the ghost first
         ctx.drawImage(ghostImage, ghost.pixelX, ghost.pixelY, ghostSize, ghostSize);
+        // If frozen, draw ice effect on top
+        if (ghostsFrozen) {
+            ctx.drawImage(ice, ghost.pixelX - 15, ghost.pixelY - 15, 1.5 * ghostSize, 1.5 * ghostSize);
+        }
     });
 }
 
-// 随机生成25个豆子的位置
+// 随机生成豆子的位置
 function generateBeans() {
     beans = [];
     while (beans.length < beannum) {
@@ -794,17 +810,13 @@ function drawBuffPoints() {
                     tileSize
                 );
             } else {
-                // Draw uncollected buff marker
-                ctx.fillStyle = 'gold';
-                ctx.beginPath();
-                ctx.arc(
-                    point.x * tileSize + tileSize/2,
-                    point.y * tileSize + tileSize/2,
-                    tileSize/4,
-                    0,
-                    Math.PI * 2
+                // Draw uncollected buff using unknownbuffImage
+                ctx.drawImage(unknownbuffImage, 
+                    point.x * tileSize, 
+                    point.y * tileSize, 
+                    tileSize, 
+                    tileSize
                 );
-                ctx.fill();
             }
         }
     });
