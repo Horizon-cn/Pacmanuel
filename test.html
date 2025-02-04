@@ -19,14 +19,15 @@
             height: 100vh;
             margin: 0;
             position: relative; /* 添加相对定位 */
-            background-image: url('./images/backimage/backimage.png');
+            background: url('./images/backimage/backimage1.png') no-repeat center bottom;
             background-size: cover;
             background-position: center;
         }
         #canvas {
             display: none;
-            /* border: 2px solid #000000; */
-            margin-top: 0; /* Add this to align to top */
+            border: 2px solid #000000;
+            position: absolute; /* 绝对定位 */
+            margin-bottom: 70px; /* 向下移动canvas */
         }
         #startButton {
             display: block;
@@ -44,19 +45,10 @@
         .info {
             display: none;
             text-align: center;
-            margin-top: 10px;
-            padding: 15px;
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent black background */
-            color: black; /* White text for better contrast */
-            border-radius: 10px; /* Rounded corners */
-            max-width: 80%; /* Limit width */
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .info p {
-            margin: 5px 0;
-            font-size: 24px; /* Increased font size */
-            line-height: 1.4; /* Added line height for better readability */
+            position: absolute; /* 绝对定位 */
+            bottom: 0px; /* 距离页面底部20px */
+            color: #FFFFE0;
+            font-size: 24px;
         }
         .title {
             display: none; /* Hide the original title */
@@ -73,20 +65,20 @@
             padding: 10px;
             border: 1px solid #000;
         }
-        #round-counter {
-            position: absolute;
-            top: 5px;
-            left: center;
-            font-size: 40px;
-            background-color: white;
-            padding: 5px 20px;
-            border: 1px solid #000;
-        }
         #bean-counter {
             position: absolute;
-            top: 5px;
+            top: 10px;
             right: 20px;
             font-size: 40px;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #000;
+        }
+        #round-counter {
+            position: absolute;
+            top: 10px;
+            left: center;
+            font-size: 30px;
             background-color: white;
             padding: 5px 20px;
             border: 1px solid #000;

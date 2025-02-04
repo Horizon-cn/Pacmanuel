@@ -218,7 +218,7 @@ function drawMap() {
 
             if (tile === 0) {
                 // Empty space - semi-transparent white
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.fillStyle = '#FFFFF0';
                 ctx.fillRect(x, y, tileSize, tileSize);
             } else if (tile === 1) {
                 // Draw walls with slightly higher opacity
