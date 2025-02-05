@@ -422,6 +422,8 @@ function movePacman(event) {
                         gamePaused = true; // 暂停游戏
                         document.getElementById('bgm').pause();
                         document.getElementById('bgm').currentTime = 0; // 重置播放时间
+                        var audio = document.getElementById('loseSound');
+                        audio.play();
                         document.getElementById('canvas').style.display = "none";
                         document.getElementById('bean-counter').style.display = "none";
                         document.getElementById('round-counter').style.display = "none";
@@ -583,6 +585,8 @@ function moveGhosts() {
                         gamePaused = true; // 暂停游戏
                         document.getElementById('bgm').pause();
                         document.getElementById('bgm').currentTime = 0; // 重置播放时间
+                        var audio = document.getElementById('loseSound');
+                        audio.play();
                         document.getElementById('canvas').style.display = "none";
                         document.getElementById('bean-counter').style.display = "none";
                         document.getElementById('round-counter').style.display = "none";
