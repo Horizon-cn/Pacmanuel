@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <style>
+      #startButton {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 20px;
+            position: absolute;
+            z-index: 1001;
+            opacity: 0; /* Make button invisible but still clickable */
+            cursor: pointer;
+            width: 300px;
+            height: 80px;
+            margin-top: 360px;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/main.js"></script>
+    <button id="startButton" onclick="window.location.href='./game/test.html'"> Start Game </button>
+  </body>
+</html>
