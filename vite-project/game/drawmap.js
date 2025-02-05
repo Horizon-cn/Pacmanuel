@@ -401,46 +401,7 @@ function movePacman(event) {
         pacman.y = newY;
     }
     
-    // Check for collision with the ghosts using time interval
-    var currentTime = Date.now();
-    if (currentTime - lastCollisionCheck >= collisionCheckInterval) {
-        lastCollisionCheck = currentTime;
-        if (checkCollisionWithGhosts()) {
-            lastCollisionCheck += 500;
-            if (whether_attack) {
-                // Try to eat ghost if we have the buff
-                eatGhost();
-            } else {
-                // Normal collision damage
-                playGhostSound();
-                hp -= ghostHarm;
-                showMessage(`👻 Manuel caught you! HP - ${ghostHarm}`);
-                updateHpCounter();
-                if (hp <= 0) {
-                    // Delay the alert to ensure the ghost image overlaps with Pac-Man
-                    setTimeout(function() {
-                        gamePaused = true; // 暂停游戏
-                        document.getElementById('bgm').pause();
-                        document.getElementById('bgm').currentTime = 0; // 重置播放时间
-                        var audio = document.getElementById('loseSound');
-                        audio.play();
-                        document.getElementById('canvas').style.display = "none";
-                        document.getElementById('bean-counter').style.display = "none";
-                        document.getElementById('round-counter').style.display = "none";
-                        document.getElementById('gpa-counter').style.display='none';
-                        document.getElementById('hp-counter').style.display='none';
-                        document.querySelector('.info').style.display = "none";
 
-                        document.querySelector('.levellose').style.display = 'block'; // 显示 levellose 界面
-                        document.getElementById('reset').removeEventListener('click', resetHandler);
-                                // Add event listener to the next level button
-
-                        document.getElementById('reset').addEventListener('click', resetHandler);
-                        }, 100);
-                }
-            }
-        }
-    }
     beans = beans.filter(function(bean) {
         if (bean.x === pacman.x && bean.y === pacman.y) {
             playCoinSound(); // 播放音频
@@ -616,7 +577,7 @@ function moveGhosts() {
 // }
 
 function checkCollisionWithGhosts() {
-    return ghosts.some(function(ghost) {
+    return ghosts.find(function(ghost) {
         var pacmanLeft = pacman.x * tileSize;
         var pacmanRight = pacmanLeft + tileSize;
         var pacmanTop = pacman.y * tileSize;
@@ -627,8 +588,10 @@ function checkCollisionWithGhosts() {
         var ghostTop = ghost.pixelY;
         var ghostBottom = ghostTop + ghostSize;
 
-        return !(pacmanRight <= ghostLeft || pacmanLeft >= ghostRight || pacmanBottom <= ghostTop || pacmanTop >= ghostBottom);
-    });
+        var isColliding = !(pacmanRight < ghostLeft || pacmanLeft > ghostRight || pacmanBottom < ghostTop || pacmanTop > ghostBottom);
+        return isColliding;
+    }) || null;
+
 }
 
 // Add this new function to handle messages
@@ -877,14 +840,13 @@ function gameLoop(timestamp) {
 
 // Modify eatGhost function to actually remove ghosts
 function eatGhost() {
-    for (let i = 0; i < ghosts.length; i++) {
-        if (Math.floor(ghosts[i].pixelX/tileSize) === pacman.x && 
-            Math.floor(ghosts[i].pixelY/tileSize) === pacman.y) {
-            ghosts.splice(i, 1); // Remove the ghost from the array
-            missingGhosts++; // 增加缺少的幽灵个数
-            showMessage("🍽️ Manuel eliminated!");
-            return true;
-        }
+    var index = ghosts.indexOf(checkCollisionWithGhosts());
+    if (index > -1) {
+        ghosts.splice(index, 1);
+        missingGhosts++;
+        showMessage("🍽️ Manuel eliminated!");
+        return true;
     }
     return false;
+
 }
