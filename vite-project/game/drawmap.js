@@ -82,6 +82,8 @@ var originalGhostSpeed = 2;
 var lastTime = 0;
 var animationFrameId;
 
+const BGM = document.getElementById('bgm');
+
 // Add these variables at the top with other variables
 var messages = [];
 var messageTimeout = 2000; // How long each message stays on screen (2 seconds)
@@ -316,6 +318,7 @@ function onBuffSelected() {
     }
     // 恢复游戏
     gamePaused = false;
+    document.getElementById('bgm').play(); 
 
     //重新绘制地图、Pac-Man 和幽灵
     ctx = canvas.getContext('2d');
@@ -357,6 +360,7 @@ function resetHandler() {
     document.getElementById('hp-counter').style.display='block';
     document.querySelector('.info').style.display = "block";
     gamePaused = false; // 恢复游戏
+    document.getElementById('bgm').play(); 
     resetGame();
 }
 
@@ -416,6 +420,8 @@ function movePacman(event) {
                     // Delay the alert to ensure the ghost image overlaps with Pac-Man
                     setTimeout(function() {
                         gamePaused = true; // 暂停游戏
+                        document.getElementById('bgm').pause();
+                        document.getElementById('bgm').currentTime = 0; // 重置播放时间
                         document.getElementById('canvas').style.display = "none";
                         document.getElementById('bean-counter').style.display = "none";
                         document.getElementById('round-counter').style.display = "none";
@@ -432,36 +438,37 @@ function movePacman(event) {
                 }
             }
         }
-    } else {
-        beans = beans.filter(function(bean) {
-            if (bean.x === pacman.x && bean.y === pacman.y) {
-                playCoinSound(); // 播放音频
-                return false;
-            }
-            return true;
-        });
-        updateBeanCounter();
-        updateGpaCounter();
-        
-        // Next level difficulty
-        if (beans.length === 0) {
-            gamePaused = true; // 暂停游戏
-            var audio = document.getElementById('winSound');
-            audio.play();
-            document.getElementById('canvas').style.display = "none";
-            document.getElementById('bean-counter').style.display = "none";
-            document.getElementById('round-counter').style.display = "none";
-            document.getElementById('gpa-counter').style.display='none';
-            document.getElementById('hp-counter').style.display='none';
-            document.querySelector('.info').style.display = "none";
-
-            document.querySelector('.levelwin').style.display = 'block'; // 显示 levelwin 界面
-            document.getElementById('nextlevel').removeEventListener('click', nextLevelHandler);
-                    // Add event listener to the next level button
-
-            document.getElementById('nextlevel').addEventListener('click', nextLevelHandler);
-        }
     }
+    beans = beans.filter(function(bean) {
+        if (bean.x === pacman.x && bean.y === pacman.y) {
+            playCoinSound(); // 播放音频
+            return false;
+        }
+        return true;
+    });
+    updateBeanCounter();
+    updateGpaCounter();
+    
+    // Next level difficulty
+    if (beans.length === 0) {
+        gamePaused = true; // 暂停游戏
+        var audio = document.getElementById('winSound');
+        audio.play();
+        document.getElementById('bgm').pause(); // 暂停背景音乐
+        document.getElementById('canvas').style.display = "none";
+        document.getElementById('bean-counter').style.display = "none";
+        document.getElementById('round-counter').style.display = "none";
+        document.getElementById('gpa-counter').style.display='none';
+        document.getElementById('hp-counter').style.display='none';
+        document.querySelector('.info').style.display = "none";
+
+        document.querySelector('.levelwin').style.display = 'block'; // 显示 levelwin 界面
+        document.getElementById('nextlevel').removeEventListener('click', nextLevelHandler);
+                // Add event listener to the next level button
+
+        document.getElementById('nextlevel').addEventListener('click', nextLevelHandler);
+    }
+    
     
     // Check for buff collection
     buffPoints.forEach(function(point) {
@@ -574,6 +581,8 @@ function moveGhosts() {
                 if (hp <= 0) {
                     setTimeout(function() {
                         gamePaused = true; // 暂停游戏
+                        document.getElementById('bgm').pause();
+                        document.getElementById('bgm').currentTime = 0; // 重置播放时间
                         document.getElementById('canvas').style.display = "none";
                         document.getElementById('bean-counter').style.display = "none";
                         document.getElementById('round-counter').style.display = "none";
@@ -732,6 +741,7 @@ function resetGame() {
     ghostSpeed = originalGhostSpeed;
     whether_attack = false;
     document.getElementById('round-counter').innerText = `LEVEL: ${round}`; // 更新显示的回合计数
+    document.getElementById('bgm').play();
 
     drawMap();
     drawPacman();
@@ -750,6 +760,7 @@ function resetGame() {
 document.getElementById('startButton').addEventListener('click', function() {
     document.getElementById('startButton').style.display = 'none';
     document.getElementById('canvas').style.display = 'block';
+    document.getElementById('bgm').play(); // 播放背景音乐
     init();
 });
 
