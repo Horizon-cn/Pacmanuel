@@ -8,7 +8,7 @@ var height = 640;
 var hp = 100;
 var pacman = { x: 1, y: 1 }; // Initial position of Pac-Man
 var pacmanImage = new Image();
-pacmanImage.src = './static/image/bluetiger.png';
+pacmanImage.src = './images/manuel_ghosts/bluetiger.png';
 var refreshInterval = 1000; // Refresh interval in milliseconds
 
 var hwallImage = new Image();
@@ -26,7 +26,7 @@ var beanImage = new Image();
 beanImage.src = "./images/bean/bigBean.png";
 
 var ghostImage = new Image();
-ghostImage.src = './static/image/manuel.png'; // The ghost image named 'ghost.png'
+ghostImage.src = './images/manuel_ghosts/manuel.png'; // The ghost image named 'ghost.png'
 var ghostMoveInterval = 10; // Interval for ghost movement in milliseconds
 
 var level;
