@@ -588,7 +588,7 @@ function checkCollisionWithGhosts() {
         var ghostTop = ghost.pixelY;
         var ghostBottom = ghostTop + ghostSize;
 
-        var isColliding = !(pacmanRight < ghostLeft || pacmanLeft > ghostRight || pacmanBottom < ghostTop || pacmanTop > ghostBottom);
+        var isColliding = !(pacmanRight <= ghostLeft || pacmanLeft >= ghostRight || pacmanBottom <= ghostTop || pacmanTop >= ghostBottom);
         return isColliding;
     }) || null;
 
